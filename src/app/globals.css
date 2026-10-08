@@ -1,0 +1,218 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "leaflet/dist/leaflet.css";
+
+/* PiringTani design tokens: "rice field at morning". */
+:root {
+  --background: #faf8f3;
+  --surface: #ffffff;
+  --foreground: #1e2a24;
+  --muted: #5b6b63;
+  --muted-surface: #f2efe7;
+  --border: #e4dfd3;
+  --border-strong: #c7c0b1;
+
+  --primary: #1f6f4a; /* deep paddy green */
+  --primary-hover: #195c3d;
+  --primary-strong: #17573a;
+  --primary-soft: #e3f0e8;
+  --primary-soft-hover: #d2e7da;
+  --primary-foreground: #ffffff;
+
+  --leaf: #7fb241; /* fresh leaf */
+  --leaf-soft: #eef6e2;
+
+  --accent: #e3a21a; /* warm turmeric: Menu Switch */
+  --accent-hover: #cc8f12;
+  --accent-foreground: #1e2a24;
+  --accent-soft: #fbf0d4;
+  --accent-strong: #6f4b00;
+
+  --danger: #c8412d; /* chili red: alerts only */
+  --danger-hover: #ad3524;
+  --danger-soft: #f9e4df;
+  --danger-strong: #9a2e1e;
+
+  --ok: #2e9e5b;
+  --ok-soft: #e1f3e8;
+  --ok-strong: #1a6a3b;
+  --warn: #e3a21a;
+  --warn-soft: #fbf0d4;
+  --warn-strong: #6f4b00;
+
+  --ring: #1f6f4a;
+  --radius: 14px;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-surface: var(--muted-surface);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-soft-hover: var(--primary-soft-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-leaf: var(--leaf);
+  --color-leaf-soft: var(--leaf-soft);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-strong: var(--accent-strong);
+  --color-danger: var(--danger);
+  --color-danger-hover: var(--danger-hover);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-strong: var(--danger-strong);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-ok-strong: var(--ok-strong);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-warn-strong: var(--warn-strong);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --shadow-soft: 0 1px 2px rgb(30 42 36 / 0.05), 0 6px 20px rgb(30 42 36 / 0.06);
+  --spacing-13: 3.25rem;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Village screens (Kopdes, Farmer): 18px body text on phones. */
+@media (max-width: 640px) {
+  .village {
+    font-size: 1.125rem;
+  }
+}
+
+/* Progress bars fill smoothly. */
+.bar-fill {
+  transition: width 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.striped {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgb(255 255 255 / 0.45) 0 6px,
+    transparent 6px 12px
+  );
+}
+
+/* Demo Mode spotlight on the element of the current step. */
+[data-tour-active="true"] {
+  position: relative;
+  z-index: 40;
+  border-radius: 16px;
+  box-shadow:
+    0 0 0 4px var(--accent),
+    0 0 0 10px rgb(227 162 26 / 0.28);
+  transition: box-shadow 300ms ease;
+}
+
+@keyframes pt-dash {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+.loop-flow {
+  stroke-dasharray: 6 6;
+  animation: pt-dash 1.2s linear infinite;
+}
+
+@keyframes pt-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.loop-pulse {
+  animation: pt-pulse 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Poster mode (?poster=1): no header or demo controls, clean white background. */
+html[data-poster="1"] body,
+html[data-poster="1"] {
+  background: #ffffff;
+}
+html[data-poster="1"] .hide-in-poster {
+  display: none !important;
+}
+html[data-poster="1"] .shadow-soft {
+  box-shadow: none;
+}
+.show-in-poster {
+  display: none;
+}
+html[data-poster="1"] .show-in-poster {
+  display: block;
+}
+
+/* Leaflet inherits the app font. */
+.leaflet-container {
+  font-family: inherit;
+  border-radius: 16px;
+}
+
+/* Print: only the report. */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+  body {
+    background: #ffffff;
+  }
+  .no-print,
+  .hide-in-poster {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .print-report {
+    font-size: 11pt;
+  }
+}
+.print-only {
+  display: none;
+}
+
+/* Hide content for a moment while a saved Indonesian preference is applied. */
+html[data-hydrating="1"] #main {
+  visibility: hidden;
+}
