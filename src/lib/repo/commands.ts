@@ -523,8 +523,8 @@ export function createBatch(data: AppData, now: Now, input: NewBatchInput): { da
             farmerId: fid,
             from: "kopdes",
             kind: "reminder",
-            textId: `⏰ Pengingat H-1: ${formatDate(input.plannedDeliveryDate, "id", { weekday: true })}, antar ${ing.nameId.toLowerCase()} ke ${shortKopdesName(kd.name)} sebelum pukul 06.00 untuk ${kitchen.name}. Batch ${code}.`,
-            textEn: `⏰ D-1 reminder: on ${formatDate(input.plannedDeliveryDate, "en", { weekday: true })}, bring your ${ing.nameEn.toLowerCase()} to ${shortKopdesName(kd.name)} before 06:00 for ${kitchen.name}. Batch ${code}.`,
+            textId: `⏰ Pengingat H-1 untuk ${honorific(f)} ${f.displayName}: ${formatDate(input.plannedDeliveryDate, "id", { weekday: true })}, antar ${ing.nameId.toLowerCase()} ke ${shortKopdesName(kd.name)} sebelum pukul 06.00 untuk ${kitchen.name}. Batch ${code}.`,
+            textEn: `⏰ D-1 reminder for ${honorific(f)} ${f.displayName}: on ${formatDate(input.plannedDeliveryDate, "en", { weekday: true })}, bring your ${ing.nameEn.toLowerCase()} to ${shortKopdesName(kd.name)} before 06:00 for ${kitchen.name}. Batch ${code}.`,
             at: now,
           } satisfies ChatMessage;
         })

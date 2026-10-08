@@ -39,7 +39,7 @@ export const INGREDIENTS: Ingredient[] = [
   {
     id: "chicken",
     nameEn: "Chicken",
-    nameId: "Daging ayam",
+    nameId: "Ayam",
     tkpiName: "Ayam, daging, segar",
     foodGroup: "animal_protein",
     unit: "kg",
@@ -57,7 +57,7 @@ export const INGREDIENTS: Ingredient[] = [
   {
     id: "eggs",
     nameEn: "Eggs",
-    nameId: "Telur ayam",
+    nameId: "Telur",
     tkpiName: "Telur ayam ras, segar",
     foodGroup: "animal_protein",
     unit: "kg",
@@ -74,7 +74,7 @@ export const INGREDIENTS: Ingredient[] = [
   {
     id: "catfish",
     nameEn: "Catfish",
-    nameId: "Ikan lele",
+    nameId: "Lele",
     tkpiName: "Ikan lele, segar",
     foodGroup: "animal_protein",
     unit: "kg",
@@ -92,7 +92,7 @@ export const INGREDIENTS: Ingredient[] = [
   {
     id: "tilapia",
     nameEn: "Tilapia",
-    nameId: "Ikan nila",
+    nameId: "Nila",
     tkpiName: "Ikan nila, segar",
     foodGroup: "animal_protein",
     unit: "kg",
