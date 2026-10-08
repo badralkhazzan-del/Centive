@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { repo, useAppData } from "@/lib/repo";
+import { ToastProvider } from "@/components/common/toast";
 
 const HydratedContext = createContext(false);
 
@@ -39,5 +40,9 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     document.documentElement.lang = lang;
   }, [lang]);
 
-  return <HydratedContext.Provider value={hydrated}>{children}</HydratedContext.Provider>;
+  return (
+    <HydratedContext.Provider value={hydrated}>
+      <ToastProvider>{children}</ToastProvider>
+    </HydratedContext.Provider>
+  );
 }

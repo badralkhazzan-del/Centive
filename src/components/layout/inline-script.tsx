@@ -1,3 +1,5 @@
+"use client";
+
 /** Inline script that runs during HTML parsing (before first paint) on hard loads. */
 export function InlineScript({ html }: { html: string }) {
   return (
