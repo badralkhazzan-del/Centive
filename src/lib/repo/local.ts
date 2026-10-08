@@ -61,8 +61,16 @@ export function createLocalRepository(): Repository {
   );
 
   const get = () => store.getState().data;
-  const set = (data: AppData) => store.setState({ data });
+  // Never write before the saved state is loaded, or the seed would overwrite it.
+  const set = (data: AppData) => {
+    if (!hydrated && typeof window !== "undefined") repo.hydrate();
+    store.setState({ data });
+  };
   const now = () => demoNow(get().today);
+  const fresh = () => {
+    if (!hydrated && typeof window !== "undefined") repo.hydrate();
+    return get();
+  };
 
   const repo: Repository = {
     getState: get,
@@ -80,49 +88,49 @@ export function createLocalRepository(): Repository {
     },
     hasHydrated: () => hydrated,
     actions: {
-      setLang: (lang) => set(cmd.setLang(get(), lang)),
-      setRole: (role) => set(cmd.setRole(get(), role)),
-      setActiveKitchen: (id) => set(cmd.setActive(get(), { activeKitchenId: id })),
-      setActiveKopdes: (id) => set(cmd.setActive(get(), { activeKopdesId: id })),
-      setActiveFarmer: (id) => set(cmd.setActive(get(), { activeFarmerId: id })),
+      setLang: (lang) => set(cmd.setLang(fresh(), lang)),
+      setRole: (role) => set(cmd.setRole(fresh(), role)),
+      setActiveKitchen: (id) => set(cmd.setActive(fresh(), { activeKitchenId: id })),
+      setActiveKopdes: (id) => set(cmd.setActive(fresh(), { activeKopdesId: id })),
+      setActiveFarmer: (id) => set(cmd.setActive(fresh(), { activeFarmerId: id })),
       sendOffers: (kopdesId, ingredientId, weeks) => {
-        const r = cmd.sendOffers(get(), now(), kopdesId, ingredientId, weeks);
+        const r = cmd.sendOffers(fresh(), now(), kopdesId, ingredientId, weeks);
         set(r.data);
         return r;
       },
       inviteMoreFarmers: (kopdesId, ingredientId) => {
-        const r = cmd.inviteMoreFarmers(get(), now(), kopdesId, ingredientId);
+        const r = cmd.inviteMoreFarmers(fresh(), now(), kopdesId, ingredientId);
         set(r.data);
         return r;
       },
       requestNeighbor: (kopdesId, ingredientId, weeks) => {
-        const r = cmd.sendOffers(get(), now(), kopdesId, ingredientId, weeks, "neighbors");
+        const r = cmd.sendOffers(fresh(), now(), kopdesId, ingredientId, weeks, "neighbors");
         set(r.data);
         return r;
       },
-      requestMenuSwitch: (kopdesId, ingredientId, weeks) => set(cmd.requestMenuSwitch(get(), now(), kopdesId, ingredientId, weeks)),
-      chatReply: (messageId, value) => set(cmd.chatReply(get(), now(), messageId, value)),
-      approveSuggestion: (s, optionIndex) => set(cmd.approveSuggestion(get(), now(), s, optionIndex)),
-      rejectSuggestion: (s) => set(cmd.rejectSuggestion(get(), now(), s)),
-      toggleDishLock: (kitchenId, dishId) => set(cmd.toggleDishLock(get(), now(), kitchenId, dishId)),
-      updateKitchen: (kitchenId, patch) => set(cmd.updateKitchen(get(), now(), kitchenId, patch)),
-      toggleHoliday: (kitchenId, date) => set(cmd.toggleHoliday(get(), now(), kitchenId, date)),
+      requestMenuSwitch: (kopdesId, ingredientId, weeks) => set(cmd.requestMenuSwitch(fresh(), now(), kopdesId, ingredientId, weeks)),
+      chatReply: (messageId, value) => set(cmd.chatReply(fresh(), now(), messageId, value)),
+      approveSuggestion: (s, optionIndex) => set(cmd.approveSuggestion(fresh(), now(), s, optionIndex)),
+      rejectSuggestion: (s) => set(cmd.rejectSuggestion(fresh(), now(), s)),
+      toggleDishLock: (kitchenId, dishId) => set(cmd.toggleDishLock(fresh(), now(), kitchenId, dishId)),
+      updateKitchen: (kitchenId, patch) => set(cmd.updateKitchen(fresh(), now(), kitchenId, patch)),
+      toggleHoliday: (kitchenId, date) => set(cmd.toggleHoliday(fresh(), now(), kitchenId, date)),
       createBatch: (input) => {
-        const r = cmd.createBatch(get(), now(), input);
+        const r = cmd.createBatch(fresh(), now(), input);
         set(r.data);
         return r.batch;
       },
       receiveBatch: (code, checks) => {
-        const r = cmd.receiveBatch(get(), now(), code, checks);
+        const r = cmd.receiveBatch(fresh(), now(), code, checks);
         if (r.ok) set(r.data);
         return { ok: r.ok, error: r.error };
       },
-      markKitchenPaid: (batchId) => set(cmd.markKitchenPaid(get(), now(), batchId)),
-      markFarmersPaid: (batchId) => set(cmd.markFarmersPaid(get(), now(), batchId)),
-      addPlateFeedback: (kitchenId, date, dishId, leftover) => set(cmd.addPlateFeedback(get(), kitchenId, date, dishId, leftover)),
-      updateSettings: (patch) => set(cmd.updateSettings(get(), now(), patch)),
+      markKitchenPaid: (batchId) => set(cmd.markKitchenPaid(fresh(), now(), batchId)),
+      markFarmersPaid: (batchId) => set(cmd.markFarmersPaid(fresh(), now(), batchId)),
+      addPlateFeedback: (kitchenId, date, dishId, leftover) => set(cmd.addPlateFeedback(fresh(), kitchenId, date, dishId, leftover)),
+      updateSettings: (patch) => set(cmd.updateSettings(fresh(), now(), patch)),
       resetDemo: () => {
-        const lang = get().ui.lang;
+        const lang = fresh().ui.lang;
         const seed = buildSeedState();
         set({ ...seed, ui: { ...seed.ui, lang } });
       },

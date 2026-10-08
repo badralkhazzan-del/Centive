@@ -11,6 +11,11 @@ import type { Repository } from "./types";
 export const repo: Repository = createLocalRepository();
 export const actions = repo.actions;
 
+// Load the saved demo data as early as possible on the client. Components read the
+// store through useSyncExternalStore, which renders the server snapshot during
+// hydration, so this does not cause hydration mismatches.
+if (typeof window !== "undefined") repo.hydrate();
+
 const serverSnapshot = buildSeedState();
 
 export function useAppData(): AppData {
