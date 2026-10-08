@@ -216,3 +216,19 @@ html[data-poster="1"] .show-in-poster {
 html[data-hydrating="1"] #main {
   visibility: hidden;
 }
+
+/* Printing from Prepare delivery prints only the QR label. */
+@media print {
+  body:has(.print-label) * {
+    visibility: hidden;
+  }
+  body:has(.print-label) .print-label,
+  body:has(.print-label) .print-label * {
+    visibility: visible;
+  }
+  body:has(.print-label) .print-label {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}

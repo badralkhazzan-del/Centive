@@ -11,8 +11,19 @@ export function LanguageToggle({ className }: { className?: string }) {
     { value: "en", short: "EN", label: t.common.english },
     { value: "id", short: "ID", label: t.common.indonesian },
   ];
+  const other = options.find((o) => o.value !== lang)!;
   return (
-    <div role="group" aria-label={t.common.language} className={cn("inline-flex rounded-xl border border-border bg-surface p-0.5", className)}>
+    <>
+      <button
+        type="button"
+        onClick={() => actions.setLang(other.value)}
+        aria-label={`${t.common.language}: ${other.label}`}
+        data-testid="lang-toggle-compact"
+        className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-border bg-surface text-sm font-bold text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring sm:hidden"
+      >
+        <span aria-hidden>{options.find((o) => o.value === lang)!.short}</span>
+      </button>
+    <div role="group" aria-label={t.common.language} className={cn("hidden rounded-xl border border-border bg-surface p-0.5 sm:inline-flex", className)}>
       {options.map((o) => (
         <button
           key={o.value}
@@ -30,5 +41,6 @@ export function LanguageToggle({ className }: { className?: string }) {
         </button>
       ))}
     </div>
+    </>
   );
 }
