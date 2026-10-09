@@ -36,7 +36,7 @@ export function SwitchInbox() {
             list.map((s, i) => <SuggestionCard key={s.id} s={s} tour={i === 0 ? "switch-top" : undefined} />)
           )}
         </section>
-        <aside className="grid content-start gap-3">
+        <aside className="grid content-start gap-3 self-start" data-tour="switch-decided">
           <h2 className="text-lg font-bold">{t.kitchen.switch.decidedTitle}</h2>
           {decisions.length === 0 ? <p className="text-sm text-muted">{t.kitchen.switch.noDecisions}</p> : null}
           <ul className="grid gap-2">

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { PackagePlus, QrCode } from "lucide-react";
 import type { Batch } from "@/types";
@@ -11,23 +12,14 @@ import { CheckboxRow } from "@/components/ui/checkbox";
 import { Input, Label, Select } from "@/components/ui/input";
 import { IngredientLabel } from "@/components/common/ingredient";
 import { useToast } from "@/components/common/toast";
-import { cellOf } from "@/engines/forecast";
 import { formatDate, formatKg } from "@/engines/format";
-import { addDays, isoWeekday, weekOfDate } from "@/engines/time";
+import { addDays } from "@/engines/time";
 import { useT } from "@/i18n";
+import { deliveryPool, nextSchoolDays, suggestedBatchKg } from "@/lib/delivery";
 import { actions, useDerived } from "@/lib/repo";
 import { cn } from "@/lib/utils";
 import { KopdesShell } from "./kopdes-shell";
 import { QrLabel } from "./qr-label";
-
-function nextSchoolDays(today: string, n: number) {
-  const out: string[] = [];
-  for (let i = 0; out.length < n && i < 14; i++) {
-    const d = addDays(today, i);
-    if (isoWeekday(d) <= 5) out.push(d);
-  }
-  return out;
-}
 
 export function PrepareDelivery() {
   const { t, lang, nm } = useT();
@@ -48,6 +40,8 @@ export function PrepareDelivery() {
   const [grade, setGrade] = useState<"A" | "B">("A");
   const [cold, setCold] = useState(false);
   const [created, setCreated] = useState<Batch | null>(null);
+  const router = useRouter();
+  const labelCode = useSearchParams().get("label")?.toUpperCase();
   const [lastKopdes, setLastKopdes] = useState(kd.id);
   if (lastKopdes !== kd.id) {
     setLastKopdes(kd.id);
@@ -56,24 +50,13 @@ export function PrepareDelivery() {
     setCreated(null);
   }
 
-  const week = weekOfDate(d.today, date);
-  const forIng = accepted.filter((c) => c.ingredientId === ingredientId);
-  const inWeek = forIng.filter((c) => c.weeks.includes(Math.max(1, week)));
-  const byFarmer = new Map<string, number>();
-  for (const c of inWeek.length ? inWeek : forIng) byFarmer.set(c.farmerId, Math.max(byFarmer.get(c.farmerId) ?? 0, c.kgPerWeek));
-  const pool = [...byFarmer.entries()].map(([farmerId, kg]) => ({ farmerId, kg }));
+  const pool = deliveryPool(d, kd.id, ingredientId, date);
   const [selected, setSelected] = useState<string[] | null>(null);
   const chosen = selected ?? pool.map((p) => p.farmerId);
   const ing = d.ingredientsById.get(ingredientId);
   const needsCold = ing?.foodGroup === "animal_protein";
-
-  // Default kg: the selected farmers' weekly kg times this kitchen's share of the Kopdes orders.
   const kitchen = d.kitchensById.get(kitchenId);
-  const w = Math.max(1, week);
-  const kitchenOrder = kitchen ? cellOf(d.kitchenTables.get(kitchen.id) ?? new Map(), ingredientId, w).kgExpected * (kitchen.kopdesOrderShare[kd.id] ?? 0) : 0;
-  const totalOrder = cellOf(d.kopdesDemand.get(kd.id) ?? new Map(), ingredientId, w).kgExpected;
-  const fraction = totalOrder > 0 ? Math.min(1, kitchenOrder / totalOrder) : 1;
-  const suggestedKg = Math.max(1, Math.round(pool.filter((p) => chosen.includes(p.farmerId)).reduce((s, p) => s + p.kg, 0) * fraction));
+  const suggestedKg = suggestedBatchKg(d, kd.id, kitchenId, ingredientId, date, pool, chosen);
   const [kgInput, setKgInput] = useState<string>("");
   const kg = kgInput === "" ? suggestedKg : Math.max(0, Number(kgInput) || 0);
 
@@ -100,7 +83,11 @@ export function PrepareDelivery() {
     notify(L.created(batch.id));
   };
 
+  // ?label=CODE shows the label of an existing batch (used by Demo Mode and shared links).
+  const shown = created ?? d.data.batches.find((b) => b.id === labelCode && b.kopdesId === kd.id) ?? null;
+
   const resetForm = () => {
+    if (labelCode) router.replace("/kopdes/delivery");
     setCreated(null);
     setSelected(null);
     setKgInput("");
@@ -110,7 +97,7 @@ export function PrepareDelivery() {
   return (
     <KopdesShell title={L.title} subtitle={L.subtitle}>
       <div className="grid grid-cols-1 gap-5">
-        {created ? (
+        {shown ? (
           <Card className="border-ok" data-tour="qr-label">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -118,10 +105,10 @@ export function PrepareDelivery() {
               </CardTitle>
             </CardHeader>
             <CardContent className="grid gap-3">
-              <QrLabel batch={d.data.batches.find((b) => b.id === created.id) ?? created} />
+              <QrLabel batch={d.data.batches.find((b) => b.id === shown.id) ?? shown} />
               <div className="flex flex-wrap justify-center gap-2">
                 <Button variant="secondary" asChild>
-                  <Link href={`/trace/${created.id}`}>{t.kitchen.receive.viewTrace}</Link>
+                  <Link href={`/trace/${shown.id}`}>{t.kitchen.receive.viewTrace}</Link>
                 </Button>
                 <Button variant="ghost" onClick={resetForm}>
                   <PackagePlus aria-hidden /> {L.newBatch}

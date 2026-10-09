@@ -8,8 +8,8 @@ import { IngredientLabel } from "@/components/common/ingredient";
 import { StatusPill } from "@/components/common/status";
 import { useToast } from "@/components/common/toast";
 import { formatDate, formatKg, formatNumber, formatRp } from "@/engines/format";
-import { STAGES } from "@/engines/payment";
 import { averageDaysToFarmerPayment } from "@/engines/payment";
+import { PaymentStepper } from "@/components/common/payment-stepper";
 import { useT } from "@/i18n";
 import { actions, useDerived } from "@/lib/repo";
 import { cn } from "@/lib/utils";
@@ -84,17 +84,7 @@ export function PaymentsList() {
                 </span>
                 <span className="text-base font-bold tabular-nums">{formatRp(payment.amountRp, lang)}</span>
               </div>
-              <ol className="grid grid-cols-4 gap-1" aria-label={t.kopdes.payments.title}>
-                {STAGES.map((s, i) => {
-                  const done = i <= status.stageIndex;
-                  return (
-                    <li key={s} className="grid grid-cols-1 gap-1">
-                      <span className={cn("h-1.5 rounded-full", done ? (status.overdue && i === status.stageIndex ? "bg-danger" : "bg-ok") : "bg-muted-surface")} />
-                      <span className={cn("text-[11px] leading-tight", done ? "font-semibold text-foreground" : "text-muted")}>{L.stages[s]}</span>
-                    </li>
-                  );
-                })}
-              </ol>
+              <PaymentStepper status={status} />
               <div className="flex flex-wrap items-center gap-2 text-sm">
                 <span className="inline-flex items-center gap-1 text-muted">
                   <Clock className="size-4" aria-hidden />

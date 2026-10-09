@@ -180,7 +180,7 @@ export const en = {
     steps: [
       {
         title: "Why are so few suppliers village cooperatives?",
-        body: "Only 0.48% of MBG suppliers are village cooperatives. The menu is known weeks ahead, but that plan never reaches farmers in time to plant or raise livestock.",
+        body: "The kitchen menu is known weeks ahead, but that plan never reaches farmers in time to plant or raise livestock.",
       },
       {
         title: "Kitchen: the menu becomes an 8-week forecast",

@@ -180,7 +180,7 @@ export const id: Dict = {
     steps: [
       {
         title: "Kenapa sedikit sekali pemasok yang berupa koperasi desa?",
-        body: "Hanya 0,48% pemasok MBG yang merupakan koperasi desa. Menu sudah diketahui berminggu-minggu sebelumnya, tetapi rencana itu tidak pernah sampai ke petani tepat waktu untuk menanam atau beternak.",
+        body: "Menu dapur sudah diketahui berminggu-minggu sebelumnya, tetapi rencana itu tidak pernah sampai ke petani tepat waktu untuk menanam atau beternak.",
       },
       {
         title: "Dapur: menu menjadi prakiraan 8 minggu",

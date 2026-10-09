@@ -83,6 +83,15 @@
   --radius-2xl: 16px;
 }
 
+/* A grid with no column template gets one column that can shrink below its content,
+   so wide charts and tables scroll inside their card instead of widening the page.
+   In the base layer, so every grid-cols-* utility still wins. */
+@layer base {
+  :where(.grid) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 html {
   -webkit-text-size-adjust: 100%;
 }
@@ -128,6 +137,27 @@ body {
     0 0 0 4px var(--accent),
     0 0 0 10px rgb(227 162 26 / 0.28);
   transition: box-shadow 300ms ease;
+}
+
+/* Demo Mode: autoplay countdown in the step card. */
+@keyframes pt-progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+.demo-progress {
+  width: 0%;
+  animation-name: pt-progress;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .demo-progress {
+    animation: none;
+  }
 }
 
 @keyframes pt-dash {

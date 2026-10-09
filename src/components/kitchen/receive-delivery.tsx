@@ -3,15 +3,16 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { CircleCheck, ExternalLink, ScanLine, Search, Snowflake, Truck } from "lucide-react";
+import { CircleCheck, Clock, ExternalLink, ScanLine, Search, Snowflake, Truck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckboxRow } from "@/components/ui/checkbox";
 import { Input, Label } from "@/components/ui/input";
 import { IngredientLabel } from "@/components/common/ingredient";
+import { PaymentStepper } from "@/components/common/payment-stepper";
 import { useToast } from "@/components/common/toast";
-import { formatDate, formatDateTime, formatKg } from "@/engines/format";
+import { formatDate, formatDateTime, formatKg, formatRp } from "@/engines/format";
 import { useT } from "@/i18n";
 import { actions, useDerived } from "@/lib/repo";
 import { shortKopdesName } from "@/lib/names";
@@ -49,6 +50,7 @@ function ReceiveInner() {
   const batch = selected ? d.data.batches.find((b) => b.id === selected) : undefined;
   const ing = batch ? d.ingredientsById.get(batch.ingredientId) : undefined;
   const needsCold = ing?.foodGroup === "animal_protein";
+  const row = batch ? d.paymentRows.find((r) => r.payment.batchId === batch.id) : undefined;
 
   const pick = (id: string) => {
     setSelected(id);
@@ -209,6 +211,21 @@ function ReceiveInner() {
                     <CircleCheck className="size-6" aria-hidden /> {t.kitchen.receive.success}
                   </p>
                   {batch.deliveredAt ? <p className="text-sm">{formatDateTime(batch.deliveredAt, lang)} · {batch.receivedBy}</p> : null}
+                  {row ? (
+                    <div className="grid gap-2 rounded-lg bg-surface p-3 text-foreground" data-tour="payment-clock" data-testid="receive-payment-clock">
+                      <p className="flex flex-wrap items-center justify-between gap-2 text-sm font-bold">
+                        <span className="inline-flex items-center gap-1.5">
+                          <Clock className="size-4 text-primary" aria-hidden /> {t.kopdes.payments.title}
+                        </span>
+                        <span className="tabular-nums">{formatRp(row.payment.amountRp, lang)}</span>
+                      </p>
+                      <PaymentStepper status={row.status} />
+                      <p className="text-xs text-muted">
+                        {row.status.waitingOn ? t.kopdes.payments.waiting[row.status.waitingOn] : ""} ·{" "}
+                        {t.kopdes.payments.sla(d.kitchensById.get(batch.kitchenId)?.paymentSlaDays ?? d.data.settings.paymentSlaDays)}
+                      </p>
+                    </div>
+                  ) : null}
                   <div className="flex flex-wrap gap-2">
                     <Button variant="outline" size="sm" asChild>
                       <Link href={`/trace/${batch.id}`}>
