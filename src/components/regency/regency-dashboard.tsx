@@ -251,7 +251,7 @@ function DashboardInner() {
                     <Tooltip formatter={(v, name) => [formatNumber(Number(v), lang, 1), String(name)]} contentStyle={{ borderRadius: 12, borderColor: CHART_GRID }} />
                     <Legend iconType="plainline" itemSorter={null} formatter={legendText} />
                     {priceIngredients.map((id, i) => (
-                      <Line key={id} type="linear" dataKey={id} name={nm(d.ingredientsById.get(id))} stroke={CATEGORICAL[i]} strokeWidth={2} dot={false} activeDot={{ r: 4, strokeWidth: 2, stroke: "#ffffff" }} />
+                      <Line key={id} isAnimationActive={false} type="linear" dataKey={id} name={nm(d.ingredientsById.get(id))} stroke={CATEGORICAL[i]} strokeWidth={2} dot={false} activeDot={{ r: 4, strokeWidth: 2, stroke: "#ffffff" }} />
                     ))}
                   </LineChart>
                 </ResponsiveContainer>
