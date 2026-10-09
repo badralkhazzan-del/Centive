@@ -17,7 +17,7 @@ export function LanguageToggle({ className }: { className?: string }) {
       <button
         type="button"
         onClick={() => actions.setLang(other.value)}
-        aria-label={`${t.common.language}: ${other.label}`}
+        aria-label={`${options.find((o) => o.value === lang)!.short} · ${t.common.language}: ${other.label}`}
         data-testid="lang-toggle-compact"
         className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-border bg-surface text-sm font-bold text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring sm:hidden"
       >
@@ -29,7 +29,7 @@ export function LanguageToggle({ className }: { className?: string }) {
           key={o.value}
           type="button"
           aria-pressed={lang === o.value}
-          aria-label={o.label}
+          aria-label={`${o.short} · ${o.label}`}
           onClick={() => actions.setLang(o.value)}
           data-testid={`lang-${o.value}`}
           className={cn(

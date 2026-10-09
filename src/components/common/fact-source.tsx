@@ -35,9 +35,11 @@ export function FactSource({ fact, className }: { fact: Fact; className?: string
 export function FactLine({ fact, className }: { fact: Fact; className?: string }) {
   const { lang } = useT();
   return (
-    <p className={cn("text-sm text-muted", className)}>
-      <span className="font-bold text-foreground">{lang === "id" ? (fact.valueId ?? fact.value) : fact.value}</span>{" "}
-      {lang === "id" ? fact.textId : fact.textEn} <FactSource fact={fact} className="min-h-0" />
-    </p>
+    <div className={cn("text-sm text-muted", className)}>
+      <p>
+        <span className="font-bold text-foreground">{lang === "id" ? (fact.valueId ?? fact.value) : fact.value}</span> {lang === "id" ? fact.textId : fact.textEn}
+      </p>
+      <FactSource fact={fact} />
+    </div>
   );
 }

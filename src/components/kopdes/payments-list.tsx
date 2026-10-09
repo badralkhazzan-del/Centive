@@ -48,7 +48,7 @@ export function PaymentsList() {
             <div className="text-xs text-muted">{L.overdueCount(overdue.length)}</div>
           </div>
         </div>
-        <div role="group" aria-label="Filter" className="grid grid-cols-3 gap-1 rounded-xl bg-muted-surface p-1">
+        <div role="group" aria-label={t.common.filter} className="grid grid-cols-3 gap-1 rounded-xl bg-muted-surface p-1">
           {(["open", "overdue", "all"] as Filter[]).map((f) => (
             <button
               key={f}

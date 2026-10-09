@@ -11,17 +11,33 @@ export function useHydrated() {
   return useContext(HydratedContext);
 }
 
+/**
+ * Offline support (public/sw.js) runs only in production builds. In development a
+ * worker left behind by an earlier production run on the same origin would answer
+ * with cached chunks instead of the dev server, so it is removed along with its caches.
+ */
 function registerServiceWorker() {
-  if (process.env.NODE_ENV !== "production") return;
   if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
-  window.addEventListener("load", () => {
+  if (process.env.NODE_ENV !== "production") {
+    navigator.serviceWorker
+      .getRegistrations()
+      .then((regs) => Promise.all(regs.map((r) => r.unregister())))
+      .catch(() => undefined);
+    if ("caches" in window) {
+      caches
+        .keys()
+        .then((names) => Promise.all(names.filter((n) => n.startsWith("piringtani-")).map((n) => caches.delete(n))))
+        .catch(() => undefined);
+    }
+    return;
+  }
+  const register = () => {
     navigator.serviceWorker.register("/sw.js").catch(() => {
       /* offline support is best effort */
     });
-  });
-  if (document.readyState === "complete") {
-    navigator.serviceWorker.register("/sw.js").catch(() => undefined);
-  }
+  };
+  if (document.readyState === "complete") register();
+  else window.addEventListener("load", register, { once: true });
 }
 
 export function AppProviders({ children }: { children: React.ReactNode }) {

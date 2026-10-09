@@ -64,7 +64,7 @@ export function ChartCard({
             {actions}
             {table ? (
               <Button variant="ghost" size="sm" onClick={() => setShowTable((v) => !v)} aria-pressed={showTable}>
-                <Table2 aria-hidden /> <span className="sr-only sm:not-sr-only">Table</span>
+                <Table2 aria-hidden /> <span className="sr-only sm:not-sr-only">{t.common.table}</span>
               </Button>
             ) : null}
             <Button variant="outline" size="sm" onClick={exportPng} disabled={busy} data-testid={`export-${fileName}`}>

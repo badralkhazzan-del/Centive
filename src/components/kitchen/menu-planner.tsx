@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input, Label } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/common/toast";
 import { formatDate, formatNumber, formatRp, weekdayName } from "@/engines/format";
 import { allComponents, resolveDay, type ResolvedDay } from "@/engines/menu";
@@ -51,12 +50,22 @@ function MenuGrid() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Tabs value={cycle} onValueChange={(v) => setCycle(v as "a" | "b")}>
-          <TabsList>
-            <TabsTrigger value="a">{t.kitchen.menu.cycleA}</TabsTrigger>
-            <TabsTrigger value="b">{t.kitchen.menu.cycleB}</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div role="group" aria-label={t.kitchen.menu.title} className="inline-flex flex-wrap items-center gap-1 rounded-xl bg-muted-surface p-1">
+          {(["a", "b"] as const).map((c) => (
+            <button
+              key={c}
+              type="button"
+              aria-pressed={cycle === c}
+              onClick={() => setCycle(c)}
+              className={cn(
+                "inline-flex min-h-11 items-center justify-center rounded-lg px-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring",
+                cycle === c ? "bg-surface text-foreground shadow-sm" : "text-muted hover:text-foreground",
+              )}
+            >
+              {c === "a" ? t.kitchen.menu.cycleA : t.kitchen.menu.cycleB}
+            </button>
+          ))}
+        </div>
         <p className="flex items-center gap-2 text-sm text-muted">
           <Lock className="size-4" aria-hidden /> {t.kitchen.menu.lockHint}
         </p>

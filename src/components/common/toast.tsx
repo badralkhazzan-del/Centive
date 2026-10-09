@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { CircleCheck, Info, X } from "lucide-react";
+import { useT } from "@/i18n";
 import { cn } from "@/lib/utils";
 
 interface Toast {
@@ -18,6 +19,7 @@ export function useToast() {
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const close = useT().t.common.close;
   const notify = useCallback((text: string, tone: Toast["tone"] = "success") => {
     const id = Date.now() + Math.random();
     setToasts((t) => [...t.slice(-2), { id, text, tone }]);
@@ -40,11 +42,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             <span className="flex-1">{t.text}</span>
             <button
               type="button"
-              className="-m-1 rounded-lg p-1 text-muted hover:text-foreground"
+              className="-my-2.5 -mr-2 flex size-11 shrink-0 items-center justify-center rounded-lg text-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
               onClick={() => setToasts((all) => all.filter((x) => x.id !== t.id))}
-              aria-label="Close"
+              aria-label={close}
             >
-              <X className="size-4" />
+              <X className="size-4" aria-hidden />
             </button>
           </div>
         ))}

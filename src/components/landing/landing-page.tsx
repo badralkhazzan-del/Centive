@@ -41,7 +41,7 @@ export function LandingPage() {
             <p className="max-w-xl text-lg text-foreground/90">{t.landing.heroTitle}</p>
             <p className="max-w-xl text-base text-muted">{t.landing.heroBody}</p>
             <div className="flex flex-wrap gap-3 pt-1">
-              <Button size="lg" variant="accent" onClick={demo.start} data-testid="hero-play-demo">
+              <Button size="lg" variant="accent" onClick={demo.start} data-testid="hero-play-demo" className="hide-in-poster">
                 <Play aria-hidden /> {t.common.playDemo}
               </Button>
               <Button size="lg" variant="outline" asChild>

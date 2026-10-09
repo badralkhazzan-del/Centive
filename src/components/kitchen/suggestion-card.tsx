@@ -19,6 +19,7 @@ function pct(v: number) {
 }
 
 function CheckRow({ label, value, rule, ok, compact }: { label: string; value: React.ReactNode; rule: string; ok: boolean; compact?: boolean }) {
+  const { t } = useT();
   return (
     <div className="flex items-center justify-between gap-3 py-1.5">
       <div className="min-w-0">
@@ -29,7 +30,8 @@ function CheckRow({ label, value, rule, ok, compact }: { label: string; value: R
         <span className="text-base font-bold tabular-nums">{value}</span>
         <span
           className={cn("flex size-6 items-center justify-center rounded-full", ok ? "bg-ok-soft text-ok-strong" : "bg-danger-soft text-danger-strong")}
-          aria-label={ok ? "OK" : "Fail"}
+          role="img"
+          aria-label={ok ? t.common.checkPass : t.common.checkFail}
         >
           {ok ? <Check className="size-4" aria-hidden /> : <X className="size-4" aria-hidden />}
         </span>

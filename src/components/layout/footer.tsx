@@ -21,11 +21,11 @@ export function AppFooter() {
               </p>
             </div>
           </div>
-          <nav aria-label="Footer" className="flex flex-wrap items-start gap-x-5 gap-y-2 font-semibold">
-            <Link className="min-h-11 py-2 hover:text-foreground" href="/settings?tab=sources">{t.footer.dataSources}</Link>
-            <Link className="min-h-11 py-2 hover:text-foreground" href="/settings?tab=privacy">{t.footer.privacy}</Link>
-            <Link className="min-h-11 py-2 hover:text-foreground" href="/about">{t.common.about}</Link>
-            <Link className="min-h-11 py-2 hover:text-foreground" href="/simulation">{t.common.simulationLab}</Link>
+          <nav aria-label={t.common.footerNav} className="grid grid-cols-2 gap-x-5 font-semibold sm:flex sm:flex-wrap sm:items-start">
+            <Link className="inline-flex min-h-11 min-w-11 items-center hover:text-foreground" href="/settings?tab=sources">{t.footer.dataSources}</Link>
+            <Link className="inline-flex min-h-11 min-w-11 items-center hover:text-foreground" href="/settings?tab=privacy">{t.footer.privacy}</Link>
+            <Link className="inline-flex min-h-11 min-w-11 items-center hover:text-foreground" href="/about">{t.common.about}</Link>
+            <Link className="inline-flex min-h-11 min-w-11 items-center hover:text-foreground" href="/simulation">{t.common.simulationLab}</Link>
           </nav>
         </div>
       </footer>

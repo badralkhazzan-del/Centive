@@ -22,7 +22,7 @@ const INPUT = seedSimulationInput();
 type MetricKey = "localShare" | "unmet" | "cost" | "exposure" | "income" | "farmers" | "compliance";
 
 export function SimulationLab() {
-  const { t, lang } = useT();
+  const { t, lang, nm } = useT();
   const [params, setParams] = useState<SimulationParams>(DEFAULT_SIM_PARAMS);
   const result = useMemo(() => runSimulation(INPUT, params), [params]);
   const S = t.simulation;
@@ -243,8 +243,8 @@ export function SimulationLab() {
                   <div className="col-span-2 grid gap-1">
                     <Label htmlFor="sim-vi" className="text-xs">{t.kopdes.delivery.ingredient}</Label>
                     <Select id="sim-vi" value={params.veg.ingredientId} onChange={(e) => set({ veg: { ...params.veg, ingredientId: e.target.value as "spinach" | "kangkung" } })}>
-                      <option value="kangkung">Kangkung</option>
-                      <option value="spinach">{lang === "id" ? "Bayam" : "Spinach"}</option>
+                      <option value="kangkung">{nm(INPUT.ingredients.find((i) => i.id === "kangkung"))}</option>
+                      <option value="spinach">{nm(INPUT.ingredients.find((i) => i.id === "spinach"))}</option>
                     </Select>
                   </div>
                 </div>
@@ -281,7 +281,7 @@ export function SimulationLab() {
             </div>
           </div>
 
-          <ul className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-4" aria-label={S.resultsTable}>
+          <ul className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3" aria-label={S.resultsTable}>
             {keys.map((key) => {
               const good = better[key](b, p);
               return (
@@ -291,7 +291,7 @@ export function SimulationLab() {
                     <div>
                       <div className="text-[11px] font-bold uppercase tracking-wide" style={{ color: STRATEGY_COLORS.baseline }}>
                         <span className="sr-only">{S.baseline}: </span>
-                        <span aria-hidden>●</span> {lang === "id" ? "Baseline" : "Baseline"}
+                        <span aria-hidden>●</span> Baseline
                       </div>
                       <div className="whitespace-nowrap text-xl font-bold tabular-nums">{metric(key, b)}</div>
                     </div>

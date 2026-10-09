@@ -53,7 +53,7 @@ export function AppHeader() {
   return (
     <header className="hide-in-poster sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/85">
       <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-2 sm:gap-3">
-        <Link href="/" className="rounded-xl focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring" aria-label={`${t.common.appName}, ${t.common.landing}`}>
+        <Link href="/" className="inline-flex min-h-11 items-center rounded-xl focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring" aria-label={`${t.common.appName}, ${t.common.landing}`}>
           <Logo compact />
         </Link>
         <span className="hidden rounded-full bg-muted-surface px-2.5 py-1 text-xs font-semibold text-muted lg:inline">
@@ -70,7 +70,7 @@ export function AppHeader() {
           <Button variant="accent" size="sm" onClick={demo.start} data-testid="play-demo" aria-label={t.common.playDemo}>
             <Play aria-hidden />
             <span className="hidden sm:inline">{t.common.playDemo}</span>
-            <span className="sm:hidden">Demo</span>
+            <span className="sm:hidden">{t.common.demoShort}</span>
           </Button>
           <LanguageToggle />
           <DropdownMenu>

@@ -152,7 +152,7 @@ function DashboardInner() {
             </Button>
           }
         />
-        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="KPI" data-tour="regency-kpis">
+        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label={t.regency.kpiLabel} data-tour="regency-kpis">
           <Kpi label={K.localShare} value={formatPct(k.localShare, lang, 1)} hint={K.localShareHint} Icon={HandCoins} tour="kpi-local" />
           <Kpi label={K.retained} value={formatRpCompact(k.retainedRp, lang)} hint={K.retainedHint} Icon={Wallet} />
           <Kpi label={K.farmers} value={formatNumber(k.farmersEngaged, lang)} hint={K.farmersHint(formatPct(k.womenPct, lang), formatPct(k.youthPct, lang))} Icon={Users} />

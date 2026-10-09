@@ -627,7 +627,44 @@ export function updateSettings(data: AppData, now: Now, patch: Partial<Settings>
   const kitchensSla =
     patch.paymentSlaDays !== undefined ? kitchens.map((k) => ({ ...k, paymentSlaDays: patch.paymentSlaDays! })) : kitchens;
   const next: AppData = { ...data, seq: nextSeq(data), settings, kitchens: kitchensSla };
-  return { ...next, auditLog: log(next, now, "system", "settings_changed", `Settings changed: ${Object.keys(patch).join(", ")}.`) };
+  const changes = describeSettingsChange(data.settings, settings);
+  return { ...next, auditLog: log(next, now, "system", "settings_changed", `Settings changed: ${changes.length ? changes.join("; ") : "no change"}.`) };
+}
+
+// Readable audit wording for settings changes ("price band floor 95% → 92%").
+const pct = (v: number) => `${Math.round(v * 1000) / 10}%`;
+const SETTING_LABELS: Record<string, [string, (v: number) => string]> = {
+  priceBandFloorPct: ["price band floor", pct],
+  priceBandCeilingPct: ["price band ceiling", pct],
+  shieldPriceRisePct: ["Price Shield price rise", pct],
+  shieldDemandSharePct: ["Price Shield demand share", pct],
+  fairnessCapPct: ["fairness cap", pct],
+  safetyBuffer: ["safety buffer", pct],
+  attendanceRate: ["attendance rate", pct],
+  paymentSlaDays: ["payment SLA", (v) => `${v} days`],
+  commitmentLeadWeeks: ["commitment lead time", (v) => `${v} weeks`],
+  minProteinPct: ["Menu Switch minimum protein", pct],
+  energyTolerancePct: ["Menu Switch energy tolerance", pct],
+  leadTimeDays: ["Menu Switch lead time", (v) => `${v} days`],
+  maxMainProteinPerWeek: ["same main protein per week", (v) => `${v}x`],
+  surplusThreshold: ["surplus trigger", pct],
+  maxStapleTopUpG: ["maximum staple adjustment", (v) => `${v} g`],
+};
+
+function describeSettingsChange(before: Settings, after: Settings): string[] {
+  const out: string[] = [];
+  const diff = (a: Record<string, unknown>, b: Record<string, unknown>) => {
+    for (const [key, [label, fmt]] of Object.entries(SETTING_LABELS)) {
+      if (!(key in b) || typeof b[key] !== "number" || a[key] === b[key]) continue;
+      out.push(`${label} ${fmt(a[key] as number)} → ${fmt(b[key] as number)}`);
+    }
+  };
+  diff(before as unknown as Record<string, unknown>, after as unknown as Record<string, unknown>);
+  diff(before.substitution as unknown as Record<string, unknown>, after.substitution as unknown as Record<string, unknown>);
+  for (const [id, kg] of Object.entries(after.marketSupplyKgPerWeek)) {
+    if (before.marketSupplyKgPerWeek[id] !== kg) out.push(`market supply estimate ${id} ${before.marketSupplyKgPerWeek[id] ?? 0} → ${kg} kg/week`);
+  }
+  return out;
 }
 
 export function demoTomorrow(data: AppData) {

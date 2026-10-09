@@ -106,7 +106,7 @@ function ReceiveInner() {
                   className="font-mono text-lg tracking-wider"
                   data-testid="batch-code-input"
                 />
-                <Button type="submit" data-testid="find-batch">
+                <Button type="submit" data-testid="find-batch" aria-label={t.kitchen.receive.find}>
                   <Search aria-hidden /> <span className="hidden sm:inline">{t.kitchen.receive.find}</span>
                 </Button>
               </div>

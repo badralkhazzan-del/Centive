@@ -90,9 +90,9 @@ export function FarmersList() {
               <table className="mt-3 w-full text-sm">
                 <thead>
                   <tr className="text-left text-xs text-muted">
-                    <th className="py-1 font-semibold"> </th>
-                    <th className="py-1 text-right font-semibold">{L.capacity}</th>
-                    <th className="py-1 text-right font-semibold">{L.commitments}</th>
+                    <th scope="col" className="py-1 font-semibold">{t.trace.ingredient}</th>
+                    <th scope="col" className="py-1 text-right font-semibold">{L.capacity}</th>
+                    <th scope="col" className="py-1 text-right font-semibold">{L.commitments}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -100,9 +100,9 @@ export function FarmersList() {
                     const held = heldByFarmer(d.data.commitments, f.id, c.ingredientId, weeks, undefined, false);
                     return (
                       <tr key={c.ingredientId} className={cn("border-t border-border", filter === c.ingredientId && "bg-primary-soft/60")}>
-                        <td className="py-1.5">
+                        <th scope="row" className="py-1.5 text-left font-normal">
                           <IngredientLabel ingredient={d.ingredientsById.get(c.ingredientId)} />
-                        </td>
+                        </th>
                         <td className="py-1.5 text-right tabular-nums">
                           {formatNumber(c.weeklyCapacityKg, lang)} kg{t.common.perWeek}
                         </td>

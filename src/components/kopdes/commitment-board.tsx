@@ -101,7 +101,9 @@ export function BoardCard({ ingredientId, live = false }: { ingredientId: string
       data-coverage={Math.round(cell.pct * 100)}
     >
       <div className="flex items-center justify-between gap-2">
-        <IngredientLabel ingredient={ing} className="text-xl font-bold" />
+        <h2>
+          <IngredientLabel ingredient={ing} className="text-xl font-bold" />
+        </h2>
         <StatusPill status={status} label={`${t.status[status]} · ${formatPct(cell.pct, lang)}`} />
       </div>
       <dl className="grid grid-cols-2 gap-2 text-base">
@@ -154,10 +156,10 @@ export function BoardCard({ ingredientId, live = false }: { ingredientId: string
       ) : null}
       {!live ? (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          <Button onClick={sendOffers} disabled={cell.pct >= 1} data-testid={`send-offers-${ingredientId}`} data-tour={`send-offers-${ingredientId}`}>
+          <Button onClick={sendOffers} disabled={cell.pct >= 1} className="h-auto whitespace-normal py-2 text-center" data-testid={`send-offers-${ingredientId}`} data-tour={`send-offers-${ingredientId}`}>
             <Send aria-hidden /> {L.sendOffers}
           </Button>
-          <Button variant="outline" asChild>
+          <Button variant="outline" className="h-auto whitespace-normal py-2 text-center" asChild>
             <Link href={`/kopdes/farmers?ingredient=${ingredientId}`}>
               <Users aria-hidden /> {L.seeFarmers}
             </Link>
