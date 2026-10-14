@@ -144,7 +144,7 @@ Live workspaces turn PiringTani from a demo into a working system: real accounts
 
 ### Turning them on (Vercel)
 
-1. In your Vercel project, open **Storage**, choose **Create Database**, pick **Neon (Postgres)** (free plan) and connect it to the project. Vercel adds `DATABASE_URL` to the environment. Any Postgres works instead, for example Supabase: copy its connection string (the pooled one on port 6543 is fine) into a `DATABASE_URL` environment variable.
+1. In your Vercel project, open **Storage**, choose **Create Database**, pick **Neon (Postgres)** (free plan) and connect it to the project. Vercel adds the connection string to the environment as `DATABASE_URL` (or `STORAGE_URL` if the integration used the "STORAGE" prefix; both work). Any Postgres works instead, for example Supabase: copy its connection string (the pooled one on port 6543 is fine) into a `DATABASE_URL` environment variable.
 2. Add an environment variable `AUTH_SECRET` with a long random value (for example the output of `openssl rand -base64 32`). It signs sign-in cookies. Without it, a key derived from `DATABASE_URL` is used.
 3. Redeploy. The tables are created automatically on first use (`pt_workspaces`, `pt_users`, `pt_login_attempts`).
 4. Open `/signup`, create your workspace and your administrator account. Choose **Empty workspace** for real use or **Sample region** to explore.

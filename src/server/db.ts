@@ -43,8 +43,13 @@ create table if not exists pt_login_attempts (
 );
 `;
 
+/**
+ * The Postgres connection string. Vercel's Neon integration names it after the prefix
+ * chosen when connecting (DATABASE_URL by default, STORAGE_URL with the "STORAGE" prefix).
+ */
 export function databaseUrl(): string | undefined {
-  return process.env.DATABASE_URL || process.env.POSTGRES_URL || undefined;
+  const env = process.env;
+  return env.DATABASE_URL || env.POSTGRES_URL || env.STORAGE_URL || env.NEON_DATABASE_URL || env.STORAGE_DATABASE_URL || undefined;
 }
 
 /** True when live workspaces can be used (a database URL is set, or we are not in production). */
