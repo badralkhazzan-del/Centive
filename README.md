@@ -3,11 +3,18 @@
 **Plan backwards, from the plate to the farm.**
 *Dari piring anak, mundur ke sawah petani.*
 
-PiringTani is a bilingual (English by default, Bahasa Indonesia) web prototype for Indonesia's Free Nutritious Meals program (Makan Bergizi Gratis, MBG), built for CENTIVE 2026. A school kitchen (SPPG) already knows weeks ahead what is on the menu, which days school is open and how many children it feeds. PiringTani starts from that plan and works backwards: to the kilograms of each ingredient the kitchen will need, to the village cooperative (Koperasi Desa/Kelurahan Merah Putih, or Kopdes) that can source them, and to the member farmers who can plant and raise livestock in time to sell.
+PiringTani is a bilingual (English by default, Bahasa Indonesia) web app for Indonesia's Free Nutritious Meals program (Makan Bergizi Gratis, MBG), built for CENTIVE 2026. A school kitchen (SPPG) already knows weeks ahead what is on the menu, which days school is open and how many children it feeds. PiringTani starts from that plan and works backwards: to the kilograms of each ingredient the kitchen will need, to the village cooperative (Koperasi Desa/Kelurahan Merah Putih, or Kopdes) that can source them, and to the member farmers who can plant and raise livestock in time to sell.
 
-It complements BGN's planned procurement marketplace rather than competing with it: the marketplace handles the purchase, PiringTani plans the supply before it. Everything runs in the browser with no backend, so the prototype can be judged from a single link and still works offline after the first visit.
+It complements BGN's planned procurement marketplace rather than competing with it: the marketplace handles the purchase, PiringTani plans the supply before it.
 
-> **Demo data notice.** Every organization, person, farmer, phone number, delivery, payment and chat message in this app is fictional. The kitchens and cooperatives are invented and placed in real subdistricts of Banyumas Regency, Central Java (Sumbang and Kembaran) only so the map looks right. Prices are placeholders and nutrition values are marked "to verify" until the team checks them (see below). The only real-world statistics are the sourced facts in `src/content/facts.ts`.
+The app has two modes:
+
+- **Demo** (no account): a fixed-date fictional region that runs fully in the browser, works offline and includes the 3-minute guided tour for judges.
+- **Live workspaces** (with an account): a real, multi-user system on the real calendar. An administrator creates a workspace, adds the real kitchens, cooperatives, farmers, menus and prices, and invites each person with a sign-in link. Everyone works on the same data on the server. See [Live workspaces](#live-workspaces).
+
+Developed by **Badr Aleen Al-kazan** for the CENTIVE Competition 2026.
+
+> **Data notice.** In the demo (and in a live workspace that loads the sample region) every organization, person, farmer, phone number, delivery, payment and chat message is fictional, placed in real subdistricts of Banyumas Regency, Central Java, only so the map looks right. Sample prices are placeholders until real prices are entered. Nutrition values follow TKPI 2020 (Kemenkes), with two items that have no TKPI row (see below). The only real-world statistics are the sourced facts in `src/content/facts.ts`.
 
 ## Contents
 
@@ -16,6 +23,7 @@ It complements BGN's planned procurement marketplace rather than competing with 
 - [Scripts](#scripts)
 - [Testing](#testing)
 - [Demo Mode](#demo-mode)
+- [Live workspaces](#live-workspaces)
 - [Project structure](#project-structure)
 - [Deploying to Vercel](#deploying-to-vercel)
 - [Replacing price data with PIHPS](#replacing-price-data-with-pihps)
@@ -129,6 +137,43 @@ Press **Play 3-minute demo** (the Play button in the header). Demo Mode first re
 | 8 | Regency | Local sourcing share, farmers engaged, fill rate and days to payment add up. |
 
 At the end the card offers **Play again**. Every screen stays open to explore.
+
+## Live workspaces
+
+Live workspaces turn PiringTani from a demo into a working system: real accounts, real data and the real date.
+
+### Turning them on (Vercel)
+
+1. In your Vercel project, open **Storage**, choose **Create Database**, pick **Neon (Postgres)** (free plan) and connect it to the project. Vercel adds `DATABASE_URL` to the environment. Any Postgres works instead, for example Supabase: copy its connection string (the pooled one on port 6543 is fine) into a `DATABASE_URL` environment variable.
+2. Add an environment variable `AUTH_SECRET` with a long random value (for example the output of `openssl rand -base64 32`). It signs sign-in cookies. Without it, a key derived from `DATABASE_URL` is used.
+3. Redeploy. The tables are created automatically on first use (`pt_workspaces`, `pt_users`, `pt_login_attempts`).
+4. Open `/signup`, create your workspace and your administrator account. Choose **Empty workspace** for real use or **Sample region** to explore.
+
+Without a database URL the deployed site still serves the full demo, and the sign-in pages explain that live workspaces are not set up yet. Locally (`npm run dev`), no setup is needed: an embedded Postgres (PGlite) stores data under `node_modules/.cache/piringtani`.
+
+### Who does what
+
+| Role | Signs in to | Can change |
+| --- | --- | --- |
+| Administrator (regency / Dinas coordinator) | Everything | All data, people, settings, start over |
+| Kitchen (SPPG) | Kitchen screens | Their kitchen, its menu and calendar, Menu Switch decisions, receipts, kitchen payments, Plate Feedback, the dish library |
+| Kopdes manager | Kopdes screens | Their Kopdes, its farmers (and farmer invites), offers, deliveries, farmer payments, weekly prices |
+| Farmer | Their own inbox (mobile web) | Answers to their own offers |
+| Viewer | Regency dashboard | Nothing (read only) |
+
+Every change is checked on the server against these rules. Farmers only see their own messages and orders; other farmers appear without names or phone numbers. Full phone numbers are visible only to administrators and the farmer's own Kopdes.
+
+### Day-to-day use
+
+- **Manage** (`/manage`): add kitchens (children, attendance, linked Kopdes and order shares, school calendar), Kopdes (and neighbors), farmers (products, weekly capacity, WhatsApp number, consent), ingredients and nutrition values, weekly market prices (type them in or paste rows from a PIHPS export or market survey), dishes and each kitchen's 4-week menu.
+- **People**: invite someone, then send the sign-in link by copy or with the **Send by WhatsApp** button. The same button gives a new link when someone forgets their password.
+- **Farmers on WhatsApp**: the Kopdes Farmers screen has a WhatsApp button per farmer that opens WhatsApp with the open offer and a link to answer it in PiringTani. No WhatsApp Business account is needed.
+- **The real calendar**: weeks roll forward automatically. Week 0 is the current week in the workspace time zone (Asia/Jakarta), plans keep their dates, and the menu cycle stays aligned.
+- **Live updates**: each screen refreshes every few seconds, so a farmer's answer appears on the Kopdes board almost at once.
+
+### How it works
+
+The browser runs each change on its local copy at once (the same pure command code as the server), then sends `{ name, args }` to `/api/command`. The server loads the workspace with a row lock, moves it to today, checks the role, runs the command and saves it. The answer replaces the local copy. See `src/lib/repo/registry.ts` (commands and permissions), `src/server/` (database, auth, workspaces, users) and `src/app/api/`.
 
 ## Project structure
 
@@ -258,7 +303,7 @@ How prices are used: the average of weeks -3 to 0 is the reference for commitmen
 
 ## Verifying TKPI values
 
-Nutrition values in `src/data/ingredients.ts` follow the Indonesian Food Composition Table (TKPI, Kemenkes). panganku.org could not be reached while the prototype was built, so every value is a recalled TKPI 2017 value marked `verified: false` with `dataSource: "TKPI (to verify)"`. To verify them:
+Nutrition values in `src/data/ingredients.ts` follow the Indonesian Food Composition Table (TKPI, Kemenkes). In October 2026 they were checked against TKPI 2020 (the revised edition) through published copies of the table, and each `dataSource` names its row code (for example `TKPI 2020 (Kemenkes), HR002` for eggs). Thirteen of the fifteen are marked `verified: true`. Two stay `verified: false` because TKPI has no matching row: catfish (lele, values from secondary sources) and tilapia (nila, values taken from Ikan mujahir, segar, GR048). In a live workspace, the administrator can edit any value in Manage > Ingredients. To re-check them yourself:
 
 1. Open https://www.panganku.org.
 2. For each ingredient, search its `tkpiName` (for example "Ayam, daging, segar" or "Telur ayam ras, segar").
@@ -285,16 +330,16 @@ Each fact also has a `buildCheck` field with the result of the web cross-check d
 - `"confirmed"`: the figure was found in the cited report or an equivalent one.
 - `"unconfirmed"`: the source could not be reached or the figure was not found. **The team must open the link and confirm it before printing the poster.**
 
-Currently unconfirmed:
+All ten facts were confirmed in October 2026. Several source sites could not be opened from the build environment, so four were confirmed through search results from more than one outlet, and their notes say so:
 
 | Fact id | Value | Source and date |
 | --- | --- | --- |
-| `kopdes-share-2026-05` | 0.48% of MBG suppliers were Kopdes (690 of 142,387) | Liputan6, 22 May 2026 |
+| `kopdes-share-2026-05` | 0.48% of MBG suppliers were Kopdes (690 of 142,387, BGN data) | detikFinance, also TIMES Indonesia and ANTARA, 22 May 2026 |
 | `banyumas-kopdes` | 41 of 331 Kopdes in Banyumas operating | ANTARA Jateng, 30 June 2026 |
-| `banyumas-partners` | about 218 MBG partners in Banyumas | iFakta, 28 Sep 2026 |
-| `no-shared-data` | no real-time shared data across farmers, suppliers and SPPG | Jurnal Litbang Provinsi Jawa Tengah (Ambarwati et al., 2025) |
+| `banyumas-partners` | about 218 MBG partners in Banyumas; food still reaches kitchens through middlemen | Suara Merdeka Banyumas, 26 Sep 2026 |
+| `no-shared-data` | MBG demand from local raw materials not yet met; an information system linking kitchen needs to local producers recommended | BRIDA Jawa Tengah (Ambarwati et al., 2025) |
 
-The first three are on the landing page (`LANDING_FACT_IDS`), and the 0.48% figure opens Demo Mode step 1, so check those first. Once confirmed, set `buildCheck: "confirmed"` and update the note. If a figure cannot be confirmed, replace it or take it off the landing page. New facts need a source URL and a date (the seed test checks this).
+Before printing the poster, open each link once in a normal browser. New facts need a source URL and a date (the seed test checks this).
 
 ## Capturing poster screenshots
 
@@ -388,6 +433,7 @@ Cards use a 16 px radius (`rounded-2xl`) and a soft shadow.
 
 ## Credits and licenses
 
+- **Developer:** Badr Aleen Al-kazan.
 - **Plus Jakarta Sans** by Tokotype, SIL Open Font License 1.1.
 - **Map data** © OpenStreetMap contributors, available under the Open Database License (https://www.openstreetmap.org/copyright). Tiles come from tile.openstreetmap.org under the OSM Foundation tile usage policy, which suits a demo but not heavy production traffic.
 - **Data sources.** Nutrition: TKPI 2017, Kemenkes (https://www.panganku.org), still to verify. Prices: placeholders, to be replaced with PIHPS, Bank Indonesia (https://www.bi.go.id/hargapangan). Facts: Liputan6, ANTARA, ANTARA Jateng, RCTI+ / Okezone, iFakta, detikJateng, Tirto (BGN), BGN, Jurnal Litbang Provinsi Jawa Tengah and Planalto (Brazil). Each one is linked in `src/content/facts.ts` and in Settings > Data sources.

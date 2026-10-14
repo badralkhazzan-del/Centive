@@ -1,7 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
-// One end-to-end smoke test: Demo Mode played from a fresh browser, against a
-// production build (the same thing judges and Vercel run).
+// End-to-end tests against a production build: Demo Mode played from a fresh browser,
+// and a multi-user live workspace (on an embedded Postgres in a temp folder).
 const PORT = 3210;
 
 export default defineConfig({
@@ -22,5 +24,6 @@ export default defineConfig({
     url: `http://localhost:${PORT}`,
     timeout: 300_000,
     reuseExistingServer: !process.env.CI,
+    env: { PT_PGLITE: "1", PT_PGLITE_DIR: join(tmpdir(), `piringtani-e2e-${process.pid}`) },
   },
 });

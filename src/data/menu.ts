@@ -33,11 +33,12 @@ export const BASE_MENU_DAYS: MenuDay[] = Array.from({ length: 20 }, (_, i) => ({
   dishIds: ["nasi_putih", PROTEIN[i], PLANT[i], VEG[i], FRUIT[i]],
 }));
 
-export function buildMenuCycle(kitchenId: string, lockedDishIds: string[]): MenuCycle {
+export function buildMenuCycle(kitchenId: string, lockedDishIds: string[], anchorMonday?: string): MenuCycle {
   return {
     id: `cycle-${kitchenId}`,
     kitchenId,
     days: BASE_MENU_DAYS.map((d) => ({ ...d, dishIds: [...d.dishIds] })),
     lockedDishIds,
+    ...(anchorMonday ? { anchorMonday } : {}),
   };
 }

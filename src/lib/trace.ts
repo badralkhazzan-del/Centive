@@ -14,6 +14,19 @@ export interface TracePayload {
   kt: string; // kitchen id
   c: boolean; // cold chain checked
   p: string; // planned delivery date
+  /** Live workspaces: Kopdes and kitchen names (the scanning phone has no copy of the data), and a real-data flag. */
+  kdn?: string;
+  ktn?: string;
+  l?: 1;
+  /** Ingredient name in English and Indonesian, for ingredients the scanner may not know. */
+  in?: [string, string];
+}
+
+export interface TraceExtras {
+  kopdesName?: string;
+  kitchenName?: string;
+  ingredientName?: [string, string];
+  live?: boolean;
 }
 
 function toBase64Url(s: string) {
@@ -30,7 +43,7 @@ function fromBase64Url(s: string) {
   return new TextDecoder().decode(bytes);
 }
 
-export function encodeTrace(batch: Batch, farmers: Map<string, Farmer>): string {
+export function encodeTrace(batch: Batch, farmers: Map<string, Farmer>, extras: TraceExtras = {}): string {
   const payload: TracePayload = {
     i: batch.ingredientId,
     kg: batch.kg,
@@ -41,6 +54,7 @@ export function encodeTrace(batch: Batch, farmers: Map<string, Farmer>): string 
     kt: batch.kitchenId,
     c: batch.coldChainChecked,
     p: batch.plannedDeliveryDate,
+    ...(extras.live ? { l: 1 as const, kdn: extras.kopdesName, ktn: extras.kitchenName, in: extras.ingredientName } : {}),
   };
   return toBase64Url(JSON.stringify(payload));
 }
@@ -56,6 +70,6 @@ export function decodeTrace(s: string | null | undefined): TracePayload | null {
   }
 }
 
-export function traceUrl(origin: string, batch: Batch, farmers: Map<string, Farmer>) {
-  return `${origin}/trace/${batch.id}?d=${encodeTrace(batch, farmers)}`;
+export function traceUrl(origin: string, batch: Batch, farmers: Map<string, Farmer>, extras: TraceExtras = {}) {
+  return `${origin}/trace/${batch.id}?d=${encodeTrace(batch, farmers, extras)}`;
 }

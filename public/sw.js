@@ -13,12 +13,13 @@
  * - RSC (flight) requests: network first, then the cached copy for that exact URL,
  *   else Response.error() so Next.js falls back to a full page navigation.
  * - OpenStreetMap tiles: cache first, opportunistic, never fails the request.
+ * - /api/*: never cached (live workspace data and sign-in).
  * - any other same-origin GET: stale while revalidate.
  *
  * Bump VERSION to drop every cache from older versions on activate.
  */
 
-const VERSION = "v1";
+const VERSION = "v2";
 const PREFIX = "piringtani-";
 const CACHE = {
   pages: `${PREFIX}pages-${VERSION}`,
@@ -45,6 +46,9 @@ const ROUTES = [
   "/simulation",
   "/settings",
   "/about",
+  "/manage",
+  "/login",
+  "/signup",
 ];
 
 // A trace page for a code nobody will use. Offline, a trace link for a batch that was
@@ -185,6 +189,8 @@ self.addEventListener("fetch", (event) => {
   }
   if (!sameOrigin(url)) return;
   if (url.pathname === "/sw.js") return;
+  // Live workspace data and sign-in always go to the network, never to a cache.
+  if (url.pathname.startsWith("/api/")) return;
 
   if (req.mode === "navigate") {
     event.respondWith(handleNavigation(event, url));

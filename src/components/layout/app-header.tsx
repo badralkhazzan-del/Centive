@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { FlaskConical, Info, LayoutGrid, Menu, Play, RotateCcw, Settings } from "lucide-react";
+import { FlaskConical, Info, LayoutGrid, LogIn, LogOut, Menu, Play, RotateCcw, Settings, Users } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,7 +16,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useDemo } from "@/components/demo/demo-context";
 import { useT } from "@/i18n";
-import { actions, useAppData, useDerived } from "@/lib/repo";
+import { actions, useAppData, useDerived, useLiveMode, useLiveUser } from "@/lib/repo";
+import { roleOf } from "@/lib/repo/remote";
+import { api, reloadTo } from "@/lib/live-client";
 import { ROLE_HOME, ROLE_NAV, roleFromPath } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/engines/format";
@@ -34,10 +36,30 @@ export function AppHeader() {
   const demo = useDemo();
   const pathRole = roleFromPath(pathname);
   const role = pathRole ?? data.ui.role;
+  const isLive = useLiveMode();
+  const user = useLiveUser();
+  const ownRole = user && user.role !== "admin" ? roleOf(user) : null;
+  const roles = ownRole ? [ownRole] : ROLES;
+  const canManage = isLive && user && user.role !== "farmer" && user.role !== "viewer";
 
   useEffect(() => {
     if (pathRole && pathRole !== data.ui.role) actions.setRole(pathRole);
   }, [pathRole, data.ui.role]);
+
+  // In a live workspace, people only open the screens of their own role.
+  useEffect(() => {
+    if (!ownRole) return;
+    if ((pathRole && pathRole !== ownRole) || (pathname.startsWith("/manage") && !canManage)) router.replace(ROLE_HOME[ownRole]);
+  }, [ownRole, pathRole, pathname, canManage, router]);
+
+  const signOut = async () => {
+    try {
+      await api("/api/auth/logout", { method: "POST" });
+    } finally {
+      document.cookie = "pt_live=; path=/; max-age=0";
+      reloadTo("/");
+    }
+  };
 
   const nav = pathRole ? ROLE_NAV[pathRole] : [];
   const derived = useDerived();
@@ -56,9 +78,15 @@ export function AppHeader() {
         <Link href="/" className="inline-flex min-h-11 items-center rounded-xl focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring" aria-label={`${t.common.appName}, ${t.common.landing}`}>
           <Logo compact />
         </Link>
-        <span className="hidden rounded-full bg-muted-surface px-2.5 py-1 text-xs font-semibold text-muted lg:inline">
-          {t.common.demoClock}: {formatDate(data.today, lang, { weekday: true, year: true })}
-        </span>
+        {isLive ? (
+          <span className="hidden max-w-64 items-center gap-1.5 truncate rounded-full bg-primary-soft px-2.5 py-1 text-xs font-semibold text-primary-strong lg:inline-flex" title={t.live.lastSync}>
+            <span className="size-2 shrink-0 rounded-full bg-ok" aria-hidden /> {t.live.liveBadge} · {data.workspace?.name} · {formatDate(data.today, lang, { weekday: true })}
+          </span>
+        ) : (
+          <span className="hidden rounded-full bg-muted-surface px-2.5 py-1 text-xs font-semibold text-muted lg:inline">
+            {t.common.demoClock}: {formatDate(data.today, lang, { weekday: true, year: true })}
+          </span>
+        )}
         <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
           <Link
             href="/simulation"
@@ -67,11 +95,13 @@ export function AppHeader() {
             <FlaskConical className="size-5 text-primary" aria-hidden />
             {t.common.simulationLab}
           </Link>
-          <Button variant="accent" size="sm" onClick={demo.start} data-testid="play-demo" aria-label={t.common.playDemo}>
-            <Play aria-hidden />
-            <span className="hidden sm:inline">{t.common.playDemo}</span>
-            <span className="sm:hidden">{t.common.demoShort}</span>
-          </Button>
+          {!isLive ? (
+            <Button variant="accent" size="sm" onClick={demo.start} data-testid="play-demo" aria-label={t.common.playDemo}>
+              <Play aria-hidden />
+              <span className="hidden sm:inline">{t.common.playDemo}</span>
+              <span className="sm:hidden">{t.common.demoShort}</span>
+            </Button>
+          ) : null}
           <LanguageToggle />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -81,8 +111,19 @@ export function AppHeader() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              {user ? (
+                <>
+                  <DropdownMenuLabel className="flex flex-col">
+                    <span>{t.live.signedInAs(user.name)}</span>
+                    <span className="text-xs font-normal text-muted">
+                      {t.live.roleLabel[user.role]} · {data.workspace?.name}
+                    </span>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                </>
+              ) : null}
               <DropdownMenuLabel>{t.common.switchRole}</DropdownMenuLabel>
-              {ROLES.map((r) => (
+              {roles.map((r) => (
                 <DropdownMenuItem key={r} onSelect={() => router.push(ROLE_HOME[r])} className={cn(r === role && "bg-primary-soft")}>
                   <RoleIcon role={r} className="text-primary" />
                   <span className="flex flex-col">
@@ -105,9 +146,25 @@ export function AppHeader() {
                 <Info aria-hidden /> {t.common.about}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={resetDemo} data-testid="reset-demo">
-                <RotateCcw aria-hidden /> {t.common.resetDemo}
-              </DropdownMenuItem>
+              {canManage ? (
+                <DropdownMenuItem onSelect={() => router.push("/manage")} data-testid="menu-manage">
+                  <Users aria-hidden /> {t.live.manage}
+                </DropdownMenuItem>
+              ) : null}
+              {isLive ? (
+                <DropdownMenuItem onSelect={signOut} data-testid="sign-out">
+                  <LogOut aria-hidden /> {t.live.signOut}
+                </DropdownMenuItem>
+              ) : (
+                <>
+                  <DropdownMenuItem onSelect={() => router.push("/login")} data-testid="menu-sign-in">
+                    <LogIn aria-hidden /> {t.live.signIn}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={resetDemo} data-testid="reset-demo">
+                    <RotateCcw aria-hidden /> {t.common.resetDemo}
+                  </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

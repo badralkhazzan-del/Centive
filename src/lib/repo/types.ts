@@ -6,12 +6,30 @@ import type { NewBatchInput, OfferResult } from "./commands";
  * a local implementation (Zustand + localStorage). A server-backed implementation
  * (for example Supabase) can implement the same interface without touching the UI.
  */
+/** The signed-in user of a live workspace (as returned by the server). */
+export interface LiveUser {
+  id: string;
+  workspaceId: string;
+  name: string;
+  login: string | null;
+  role: "admin" | "kitchen" | "kopdes" | "farmer" | "viewer";
+  entityId: string | null;
+}
+
 export interface Repository {
+  /** "demo": the fixed-date sample in this browser. "live": a shared workspace on the server. */
+  mode: "demo" | "live";
   getState(): AppData;
   subscribe(listener: () => void): () => void;
   /** Load persisted data (client only). */
   hydrate(): void;
   hasHydrated(): boolean;
+  /** Live mode: the signed-in user (null in the demo). */
+  getUser(): LiveUser | null;
+  /** Live mode: reload from the server now. */
+  refresh(): Promise<void>;
+  /** Live mode: failed server calls (forbidden, network...). */
+  onError(listener: (kind: "forbidden" | "network" | "server" | "unauthorized") => void): () => void;
   actions: RepositoryActions;
 }
 
@@ -45,4 +63,6 @@ export interface RepositoryActions {
 
   updateSettings(patch: Partial<Settings>): void;
   resetDemo(): void;
+  /** Any command from the registry by name (data entry and management). */
+  exec(name: string, args: unknown[]): unknown;
 }

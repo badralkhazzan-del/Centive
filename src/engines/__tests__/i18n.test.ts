@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { en } from "@/i18n/en";
 import { id } from "@/i18n/id";
+import * as dishes from "@/components/manage/dishes-strings";
+import * as farmers from "@/components/manage/farmers-strings";
+import * as food from "@/components/manage/food-strings";
+import * as places from "@/components/manage/places-strings";
 
 type Leaf = { path: string; value: unknown };
 
@@ -34,4 +38,21 @@ describe("i18n", () => {
     const same = e.filter((l, k) => typeof l.value === "string" && l.value === i[k].value).length;
     expect(same / e.length).toBeLessThan(0.15);
   });
+});
+
+// Extra strings kept next to the Manage screens must be complete in both languages too.
+
+describe("Manage screen strings", () => {
+  for (const [name, mod] of Object.entries({ dishes, farmers, food, places })) {
+    it(`${name}: same keys and no empty strings in English and Indonesian`, () => {
+      expect(leaves(mod.id).map((l) => l.path)).toEqual(leaves(mod.en).map((l) => l.path));
+      for (const dict of [mod.en, mod.id]) {
+        for (const { path, value } of leaves(dict)) {
+          const text = typeof value === "function" ? sample(value as (...a: unknown[]) => unknown) : value;
+          expect(typeof text, path).toBe("string");
+          expect((text as string).trim().length, path).toBeGreaterThan(0);
+        }
+      }
+    });
+  }
 });

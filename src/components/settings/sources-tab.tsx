@@ -78,6 +78,7 @@ export function SourcesTab() {
   const { t, lang, nm } = useT();
   const data = useAppData();
   const L = settingsStrings(lang);
+  const real = Boolean(data.workspace && !data.workspace.sample);
   const S = t.settings;
 
   const factsConfirmed = FACTS.filter((f) => f.buildCheck === "confirmed").length;
@@ -149,15 +150,15 @@ export function SourcesTab() {
       key: "people",
       icon: Users,
       name: S.datasets.people,
-      source: <span>{L.peopleSource}</span>,
-      status: <SourceStatus kind="fictional" label={S.fictional} />,
+      source: <span>{real ? L.peopleSourceLive : L.peopleSource}</span>,
+      status: real ? <SourceStatus kind="demo" label={t.live.liveBadge} /> : <SourceStatus kind="fictional" label={S.fictional} />,
     },
     {
       key: "calendar",
       icon: CalendarDays,
       name: S.datasets.calendar,
-      source: <span>{L.calendarSource(holidayText)}</span>,
-      status: <SourceStatus kind="demo" label={t.common.demoData} />,
+      source: <span>{real ? L.calendarSourceLive : L.calendarSource(holidayText)}</span>,
+      status: <SourceStatus kind="demo" label={real ? t.live.liveBadge : t.common.demoData} />,
     },
     {
       key: "budget",

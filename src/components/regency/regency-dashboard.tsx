@@ -60,6 +60,7 @@ const subscribeOnline = (cb: () => void) => {
 function DashboardInner() {
   const { t, lang, nm } = useT();
   const d = useDerived();
+  const real = Boolean(d.data.workspace && !d.data.workspace.sample);
   const k = regencyKpis(d);
   const online = useSyncExternalStore(subscribeOnline, () => navigator.onLine, () => true);
   const [view, setView] = useState<"map" | "list">("map");
@@ -143,9 +144,9 @@ function DashboardInner() {
     <>
       <div className="print:hidden">
         <PageHeader
-          eyebrow={`${t.common.readOnly} · Kabupaten Banyumas (${t.common.demoData.toLowerCase()})`}
+          eyebrow={real ? `${t.common.readOnly} · ${d.data.workspace!.region || d.data.workspace!.name}` : `${t.common.readOnly} · Kabupaten Banyumas (${t.common.demoData.toLowerCase()})`}
           title={t.regency.title}
-          subtitle={t.regency.subtitle}
+          subtitle={real ? t.regency.liveSubtitle : t.regency.subtitle}
           actions={
             <Button variant="outline" onClick={() => window.print()} data-testid="export-report">
               <Printer aria-hidden /> {t.regency.exportReport}
@@ -268,6 +269,7 @@ function DashboardInner() {
 function PrintReport({ k, links }: { k: RegencyKpis; links: (MapLink & { pct: number })[] }) {
   const { t, lang } = useT();
   const d = useDerived();
+  const real = Boolean(d.data.workspace && !d.data.workspace.sample);
   const K = t.regency.kpis;
   const rows: [string, string][] = [
     [K.localShare, formatPct(k.localShare, lang, 1)],
@@ -281,7 +283,7 @@ function PrintReport({ k, links }: { k: RegencyKpis; links: (MapLink & { pct: nu
   ];
   return (
     <section className="print-only print-report">
-      <h1 style={{ fontSize: "18pt", fontWeight: 800, color: "#17573a" }}>{t.regency.reportTitle}</h1>
+      <h1 style={{ fontSize: "18pt", fontWeight: 800, color: "#17573a" }}>{real ? t.regency.liveReportTitle(d.data.workspace!.name) : t.regency.reportTitle}</h1>
       <p style={{ marginBottom: "10pt" }}>
         {t.common.demoClock}: {formatDate(d.today, lang, { weekday: true, year: true })} · {t.common.tagline}
       </p>
@@ -311,7 +313,7 @@ function PrintReport({ k, links }: { k: RegencyKpis; links: (MapLink & { pct: nu
       <h2 style={{ fontSize: "13pt", fontWeight: 700, margin: "8pt 0 4pt" }}>{t.regency.chartLocal}</h2>
       <p>{k.weekly.map((w) => `${t.common.weekN(w.week)}: ${formatPct(w.share, lang, 1)}`).join(" · ")}</p>
       <p style={{ marginTop: "14pt", fontSize: "9pt", color: "#5b6b63" }}>
-        {t.regency.reportFooter} {t.common.fictional} {t.footer.competition}.
+        {real ? `${t.regency.liveReportFooter} ${t.footer.competition}.` : `${t.regency.reportFooter} ${t.common.fictional} ${t.footer.competition}.`}
       </p>
     </section>
   );

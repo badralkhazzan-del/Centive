@@ -12,7 +12,7 @@ import { useToast } from "@/components/common/toast";
 import { DEFAULT_SETTINGS } from "@/data/seed";
 import { formatNumber, formatPct, formatRp } from "@/engines/format";
 import { useT } from "@/i18n";
-import { actions, repo, useDerived } from "@/lib/repo";
+import { actions, repo, useDerived, useLiveMode, useLiveUser } from "@/lib/repo";
 import { cn } from "@/lib/utils";
 import { IconTile } from "./parts";
 import { SettingField } from "./setting-field";
@@ -141,6 +141,9 @@ export function ThresholdsTab() {
   const eggBand = eggs ? d.commitmentBand("eggs") : null;
   const overdue = d.paymentRows.filter((r) => r.status.overdue).length;
   const supplyIds = Object.keys(s.marketSupplyKgPerWeek).filter((id) => d.ingredientsById.has(id));
+  const live = useLiveMode();
+  const user = useLiveUser();
+  const readOnly = live && user?.role !== "admin";
 
   const resetDemo = () => {
     if (!window.confirm(t.common.resetConfirm)) return;
@@ -152,8 +155,9 @@ export function ThresholdsTab() {
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
       <h2 className="sr-only">{S.tabs.thresholds}</h2>
       <p className="flex items-start gap-2 rounded-2xl bg-primary-soft p-4 text-sm font-semibold text-primary-strong">
-        <Info className="mt-0.5 size-5 shrink-0" aria-hidden /> {S.thresholdsHint}
+        <Info className="mt-0.5 size-5 shrink-0" aria-hidden /> {readOnly ? t.manage.adminOnly : S.thresholdsHint}
       </p>
+      <fieldset disabled={readOnly} className="contents">
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         <SectionCard icon={Tag} title={S.priceBand}>
@@ -317,12 +321,14 @@ export function ThresholdsTab() {
               <option value="id">{t.common.indonesian}</option>
             </Select>
           </div>
-          <div className="grid gap-2 rounded-xl border border-danger/30 bg-danger-soft/40 p-3">
-            <p className="text-sm text-foreground">{S.resetHint}</p>
-            <Button variant="outline" onClick={resetDemo} className="border-danger/40 text-danger-strong hover:bg-danger-soft" data-testid="settings-reset">
-              <RotateCcw aria-hidden /> {S.reset}
-            </Button>
-          </div>
+          {live ? null : (
+            <div className="grid gap-2 rounded-xl border border-danger/30 bg-danger-soft/40 p-3">
+              <p className="text-sm text-foreground">{S.resetHint}</p>
+              <Button variant="outline" onClick={resetDemo} className="border-danger/40 text-danger-strong hover:bg-danger-soft" data-testid="settings-reset">
+                <RotateCcw aria-hidden /> {S.reset}
+              </Button>
+            </div>
+          )}
         </SectionCard>
       </div>
 
@@ -392,6 +398,7 @@ export function ThresholdsTab() {
           />
         </div>
       </SectionCard>
+      </fieldset>
     </div>
   );
 }

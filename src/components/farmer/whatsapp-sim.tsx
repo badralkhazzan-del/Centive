@@ -11,7 +11,7 @@ import { PageContainer, PageHeader } from "@/components/layout/page";
 import { BoardCard } from "@/components/kopdes/commitment-board";
 import { formatDate, formatNumber, formatTime, formatWeeks } from "@/engines/format";
 import { useT } from "@/i18n";
-import { actions, useAppData, useDerived } from "@/lib/repo";
+import { actions, useAppData, useDerived, useLiveUser } from "@/lib/repo";
 import { shortKopdesName } from "@/lib/names";
 import { cn } from "@/lib/utils";
 
@@ -29,9 +29,11 @@ function RichText({ text }: { text: string }) {
 
 export function WhatsAppSimulator() {
   const { t } = useT();
+  const user = useLiveUser();
+  const own = user?.role === "farmer";
   return (
     <PageContainer className="village">
-      <PageHeader title={t.farmer.title} subtitle={t.farmer.subtitle} />
+      <PageHeader title={own ? t.farmer.liveTitle : t.farmer.title} subtitle={own ? t.farmer.liveSubtitle : t.farmer.subtitle} />
       <HydrationGate rows={2}>
         <SimulatorBody />
       </HydrationGate>
@@ -41,6 +43,8 @@ export function WhatsAppSimulator() {
 
 function SimulatorBody() {
   const { t, lang } = useT();
+  const user = useLiveUser();
+  const own = user?.role === "farmer";
   const data = useAppData();
   const d = useDerived();
   const farmerId = data.ui.activeFarmerId;
@@ -63,7 +67,7 @@ function SimulatorBody() {
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:items-start">
       <div className="grid grid-cols-1 gap-3">
-        <div className="grid gap-1.5">
+        <div className={cn("grid gap-1.5", own && "hidden")}>
           <Label htmlFor="farmer-select">{t.farmer.chooseFarmer}</Label>
           <Select id="farmer-select" value={farmerId} onChange={(e) => actions.setActiveFarmer(e.target.value)} data-testid="farmer-select">
             {sortedFarmers.map((f) => (
@@ -74,7 +78,7 @@ function SimulatorBody() {
           </Select>
         </div>
         <ChatPhone messages={messages} kopdesName={shortKopdesName(d.kopdesById.get(liveKopdes)?.name ?? "Kopdes")} />
-        <p className="text-sm text-muted">{t.farmer.note}</p>
+        <p className="text-sm text-muted">{user ? t.farmer.liveNote : t.farmer.note}</p>
         <p className="text-sm text-muted">{t.farmer.privacy}</p>
       </div>
       <div className="grid grid-cols-1 gap-5">

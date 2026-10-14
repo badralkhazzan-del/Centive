@@ -1,6 +1,6 @@
 import type { AppData, ChatMessage, Commitment, Settings } from "@/types";
 import { commitmentBand, indexPrices } from "@/engines/priceBand";
-import { addDays, DEMO_TODAY, isoAt } from "@/engines/time";
+import { addDays, DEMO_TODAY, isoAt, mondayOf, weekStart } from "@/engines/time";
 import { SEED_COMMITMENTS } from "./commitments";
 import { DISHES } from "./dishes";
 import { buildFarmers } from "./farmers";
@@ -11,7 +11,7 @@ import { buildKitchens, KOPDES, SEED_LOCKS } from "./places";
 import { buildPrices } from "./prices";
 
 /** Bump when the persisted shape changes; older saved states are replaced by the seed. */
-export const SEED_VERSION = 3;
+export const SEED_VERSION = 4;
 
 export const DEFAULT_SETTINGS: Settings = {
   priceBandFloorPct: 0.95,
@@ -84,8 +84,8 @@ function seedChat(today: string): ChatMessage[] {
   ];
 }
 
-export function buildSeedState(): AppData {
-  const today = DEMO_TODAY;
+/** The fictional sample region. `today` defaults to the fixed demo date; live workspaces pass the real date. */
+export function buildSeedState(today: string = DEMO_TODAY): AppData {
   const ingredients = INGREDIENTS.map((i) => ({ ...i, allergens: [...i.allergens], seasonalityByMonth: [...i.seasonalityByMonth] }));
   const dishes = DISHES.map((d) => ({ ...d, components: d.components.map((c) => ({ ...c, gramsPerPortion: { ...c.gramsPerPortion } })) }));
   const kitchens = buildKitchens();
@@ -95,7 +95,7 @@ export function buildSeedState(): AppData {
     neighborKopdesIds: [...k.neighborKopdesIds],
     memberFarmerIds: farmers.filter((f) => f.kopdesId === k.id).map((f) => f.id),
   }));
-  const menuCycles = kitchens.map((k) => buildMenuCycle(k.id, SEED_LOCKS[k.id] ?? []));
+  const menuCycles = kitchens.map((k) => buildMenuCycle(k.id, SEED_LOCKS[k.id] ?? [], weekStart(mondayOf(today), 1)));
   const prices = buildPrices(today);
   const priceIdx = indexPrices(prices);
 
@@ -166,5 +166,36 @@ export function buildSeedState(): AppData {
     ],
     chat: seedChat(today),
     seq: 1,
+  };
+}
+
+/**
+ * A new live workspace with no kitchens, cooperatives or farmers yet. It starts with
+ * the standard ingredient list, dish library and placeholder prices so every engine
+ * works as soon as the first kitchen and Kopdes are added.
+ */
+export function buildEmptyState(today: string): AppData {
+  const base = buildSeedState(today);
+  return {
+    ...base,
+    ui: { lang: "en", role: null, activeKitchenId: "", activeKopdesId: "", activeFarmerId: "" },
+    menuCycles: [],
+    kitchens: [],
+    kopdes: [],
+    farmers: [],
+    commitments: [],
+    batches: [],
+    payments: [],
+    plateFeedback: [],
+    chat: [],
+    auditLog: [
+      {
+        id: "log-created",
+        timestamp: isoAt(today, "00:00"),
+        actorRole: "system",
+        action: "workspace_created",
+        details: "Workspace created.",
+      },
+    ],
   };
 }

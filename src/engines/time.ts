@@ -55,9 +55,20 @@ export function cycleWeekOf(week: number): number {
   return ((((week - 1) % 4) + 4) % 4) + 1;
 }
 
-/** Menu-cycle day index (1..20) for a planning week and weekday (0..4). */
-export function cycleDayIndex(week: number, dow: number): number {
-  return (cycleWeekOf(week) - 1) * 5 + dow + 1;
+/** Menu-cycle day index (1..20) for a planning week and weekday (0..4). `offset` shifts the cycle (see cycleOffset). */
+export function cycleDayIndex(week: number, dow: number, offset = 0): number {
+  return (cycleWeekOf(week + offset) - 1) * 5 + dow + 1;
+}
+
+/** Weeks between two Mondays (can be negative). */
+export function weeksBetween(fromMonday: string, toMonday: string): number {
+  return Math.round(daysBetween(mondayOf(fromMonday), mondayOf(toMonday)) / 7);
+}
+
+/** Cycle offset so that the week starting on `anchorMonday` is cycle week 1. */
+export function cycleOffset(today: string, anchorMonday?: string): number {
+  if (!anchorMonday) return 0;
+  return weeksBetween(anchorMonday, weekStart(today, 1));
 }
 
 /** Weekday (0..4) of a cycle day index. */

@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { ShieldCheck, ShieldQuestion } from "lucide-react";
+import { MessageCircle, ShieldCheck, ShieldQuestion } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FactLine } from "@/components/common/fact-source";
@@ -12,6 +12,7 @@ import { heldByFarmer } from "@/engines/matching";
 import { useT } from "@/i18n";
 import { useDerived } from "@/lib/repo";
 import { cn } from "@/lib/utils";
+import { whatsappLink } from "@/lib/whatsapp";
 import { KopdesShell } from "./kopdes-shell";
 
 function ShareBar({ label, value }: { label: string; value: number }) {
@@ -86,6 +87,7 @@ export function FarmersList() {
                   {f.consentGiven ? L.consentGiven : L.consentPending}
                 </span>
                 <span className="text-muted">{f.phoneMasked}</span>
+                {f.phone ? <WhatsAppOffer farmerId={f.id} phone={f.phone} /> : null}
               </div>
               <table className="mt-3 w-full text-sm">
                 <thead>
@@ -122,5 +124,29 @@ export function FarmersList() {
         </ul>
       </div>
     </KopdesShell>
+  );
+}
+
+/** Opens WhatsApp to the farmer with their latest open offer and a link to answer it here. */
+function WhatsAppOffer({ farmerId, phone }: { farmerId: string; phone: string }) {
+  const { t } = useT();
+  const d = useDerived();
+  const f = d.farmersById.get(farmerId);
+  const open = [...d.data.chat].reverse().find((m) => m.farmerId === farmerId && m.buttons?.length && !m.answered);
+  const greeting = `Halo ${f?.gender === "female" ? "Bu" : "Pak"} ${f?.displayName ?? ""}`;
+  const body = open ? open.textId.replace(/\*\*/g, "*") : `${greeting} 👋`;
+  const url = typeof window !== "undefined" ? `${window.location.origin}/farmer` : "/farmer";
+  const text = `${body}\n\nJawab di PiringTani: ${url}`;
+  return (
+    <a
+      href={whatsappLink(text, phone)}
+      target="_blank"
+      rel="noopener noreferrer"
+      title={t.kopdes.farmers.whatsappHint}
+      className="ml-auto inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-border px-3 text-sm font-semibold text-primary hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
+      data-testid={`whatsapp-${farmerId}`}
+    >
+      <MessageCircle className="size-4" aria-hidden /> {open ? t.kopdes.farmers.whatsappOffer : t.kopdes.farmers.whatsapp}
+    </a>
   );
 }

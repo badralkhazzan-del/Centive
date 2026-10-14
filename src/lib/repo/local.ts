@@ -3,6 +3,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import type { AppData } from "@/types";
 import { buildSeedState, SEED_VERSION } from "@/data/seed";
 import * as cmd from "./commands";
+import { COMMANDS } from "./registry";
 import type { Repository } from "./types";
 
 // Local repository: Zustand store persisted to localStorage. Works fully offline.
@@ -73,6 +74,10 @@ export function createLocalRepository(): Repository {
   };
 
   const repo: Repository = {
+    mode: "demo",
+    getUser: () => null,
+    refresh: async () => undefined,
+    onError: () => () => undefined,
     getState: get,
     subscribe: (listener) => store.subscribe(listener),
     hydrate: () => {
@@ -129,6 +134,13 @@ export function createLocalRepository(): Repository {
       markFarmersPaid: (batchId) => set(cmd.markFarmersPaid(fresh(), now(), batchId)),
       addPlateFeedback: (kitchenId, date, dishId, leftover) => set(cmd.addPlateFeedback(fresh(), kitchenId, date, dishId, leftover)),
       updateSettings: (patch) => set(cmd.updateSettings(fresh(), now(), patch)),
+      exec: (name, args) => {
+        const spec = COMMANDS[name];
+        if (!spec) return undefined;
+        const r = spec.run(fresh(), now(), args);
+        set(r.data);
+        return r.result;
+      },
       resetDemo: () => {
         const lang = fresh().ui.lang;
         const seed = buildSeedState();

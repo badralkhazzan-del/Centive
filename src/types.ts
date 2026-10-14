@@ -76,6 +76,8 @@ export interface MenuCycle {
   days: MenuDay[];
   /** Anchor dishes the nutritionist has locked: they are never swapped. */
   lockedDishIds: string[];
+  /** Monday (ISO) of a week that uses cycle week 1. Keeps the cycle aligned as real weeks pass. */
+  anchorMonday?: string;
 }
 
 export interface Holiday {
@@ -137,6 +139,8 @@ export interface Farmer {
   commodities: FarmerCommodity[];
   reliabilityScore: number;
   phoneMasked: string;
+  /** Full number for WhatsApp links (live workspaces). Only admins and the farmer's Kopdes see it. */
+  phone?: string;
   consentGiven: boolean;
 }
 
@@ -387,10 +391,22 @@ export interface UiState {
   activeFarmerId: string;
 }
 
+/** Set for live (server) workspaces; absent in the local demo. */
+export interface WorkspaceMeta {
+  id: string;
+  name: string;
+  region: string;
+  /** True while the fictional sample region is loaded. */
+  sample: boolean;
+  timezone: string;
+  createdAt: string;
+}
+
 /** Everything the app persists. The repository layer owns this shape. */
 export interface AppData {
   version: number;
   today: string;
+  workspace?: WorkspaceMeta;
   ui: UiState;
   settings: Settings;
   ingredients: Ingredient[];

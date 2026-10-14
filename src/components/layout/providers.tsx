@@ -1,8 +1,9 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { repo, useAppData } from "@/lib/repo";
-import { ToastProvider } from "@/components/common/toast";
+import { ToastProvider, useToast } from "@/components/common/toast";
+import { useT } from "@/i18n";
 
 const HydratedContext = createContext(false);
 
@@ -41,15 +42,18 @@ function registerServiceWorker() {
 }
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
-  const [hydrated, setHydrated] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const lang = useAppData().ui.lang;
+  // Demo: ready once mounted (localStorage is read at module load). Live: once the first server load arrives.
+  const hydrated = mounted && (repo.mode === "demo" || repo.hasHydrated());
 
   useEffect(() => {
     repo.hydrate();
     // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time switch after client-only storage loads
-    setHydrated(true);
-    document.documentElement.removeAttribute("data-hydrating");
+    setMounted(true);
     registerServiceWorker();
+    // Live workspaces show their own loading screen, so the page can be revealed now.
+    document.documentElement.removeAttribute("data-hydrating");
   }, []);
 
   useEffect(() => {
@@ -58,7 +62,32 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
 
   return (
     <HydratedContext.Provider value={hydrated}>
-      <ToastProvider>{children}</ToastProvider>
+      <ToastProvider>
+        <LiveErrors />
+        {children}
+      </ToastProvider>
     </HydratedContext.Provider>
   );
+}
+
+/** Live mode: tell the user when a change was refused or the server is unreachable. */
+function LiveErrors() {
+  const notify = useToast();
+  const { t } = useT();
+  const msg = useRef(t.live);
+  useEffect(() => {
+    msg.current = t.live;
+  });
+  useEffect(() => {
+    let lastNetwork = 0;
+    return repo.onError((kind) => {
+      if (kind === "forbidden") notify(msg.current.forbidden, "info");
+      else if (kind === "server") notify(msg.current.saveFailed, "info");
+      else if (kind === "network" && Date.now() - lastNetwork > 30_000) {
+        lastNetwork = Date.now();
+        notify(msg.current.unreachable, "info");
+      }
+    });
+  }, [notify]);
+  return null;
 }

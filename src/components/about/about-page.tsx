@@ -131,6 +131,14 @@ export function AboutPage() {
           </div>
         </section>
 
+        {/* Developer */}
+        <section aria-labelledby="about-dev-title" className="rounded-2xl border border-border bg-surface p-5 shadow-soft sm:p-6" data-testid="about-developer">
+          <h2 id="about-dev-title" className="text-lg font-bold">
+            {t.about.developerTitle}
+          </h2>
+          <p className="max-w-3xl text-base text-muted">{t.about.developerBody}</p>
+        </section>
+
         {/* Next steps */}
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button size="lg" variant="accent" onClick={demo.start}>

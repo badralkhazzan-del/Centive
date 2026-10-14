@@ -18,8 +18,13 @@ export function QrLabel({ batch }: { batch: Batch }) {
   const { t, lang, nm } = useT();
   const d = useDerived();
   const origin = useSyncExternalStore(subscribeNoop, () => window.location.origin, () => "");
-  const url = traceUrl(origin, batch, d.farmersById);
   const ing = d.ingredientsById.get(batch.ingredientId);
+  const url = traceUrl(origin, batch, d.farmersById, {
+    live: Boolean(d.data.workspace && !d.data.workspace.sample),
+    kopdesName: d.kopdesById.get(batch.kopdesId)?.name,
+    kitchenName: d.kitchensById.get(batch.kitchenId)?.name,
+    ingredientName: ing ? [ing.nameEn, ing.nameId] : undefined,
+  });
   return (
     <div className="grid gap-3">
       <div id="qr-label" className="print-label mx-auto grid w-full max-w-sm gap-3 rounded-2xl border-2 border-foreground bg-white p-5 text-foreground" data-testid="qr-label">

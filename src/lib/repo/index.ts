@@ -4,11 +4,14 @@ import { useSyncExternalStore } from "react";
 import type { AppData } from "@/types";
 import { derive, type Derived } from "@/engines/derive";
 import { buildSeedState } from "@/data/seed";
+import { isLiveBrowser } from "@/lib/live-client";
 import { createLocalRepository } from "./local";
+import { createRemoteRepository } from "./remote";
 import type { Repository } from "./types";
 
-// Swap this line to use another Repository implementation (e.g. Supabase).
-export const repo: Repository = createLocalRepository();
+// Signed-in browsers use their live workspace on the server; everyone else gets the
+// fixed-date demo stored in this browser.
+export const repo: Repository = isLiveBrowser() ? createRemoteRepository() : createLocalRepository();
 export const actions = repo.actions;
 
 // Load the saved demo data as early as possible on the client. Components read the
@@ -38,4 +41,22 @@ export function useDerived(): Derived {
   return getDerived(useAppData());
 }
 
-export type { Repository } from "./types";
+export type { LiveUser, Repository } from "./types";
+
+/** True when this browser uses a live (server) workspace. */
+export const isLive = repo.mode === "live";
+
+/** The signed-in live user (null in the demo or before the first load). */
+export function useLiveUser() {
+  return useSyncExternalStore(repo.subscribe, repo.getUser, () => null);
+}
+
+const noSubscribe = () => () => undefined;
+
+/**
+ * Live mode for rendering: false during server rendering and hydration (pages are
+ * prerendered as the demo), then the real value. Use this instead of `isLive` in JSX.
+ */
+export function useLiveMode(): boolean {
+  return useSyncExternalStore(noSubscribe, () => isLive, () => false);
+}

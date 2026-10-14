@@ -1,5 +1,5 @@
 import type { Dish, Kitchen, MenuCycle, MenuOverride, PortionSize, SchoolCalendar, Sized } from "@/types";
-import { cycleDayIndex, isoWeekday, schoolDayDate } from "./time";
+import { cycleDayIndex, cycleOffset, isoWeekday, schoolDayDate } from "./time";
 
 export interface ResolvedComponent {
   ingredientId: string;
@@ -62,7 +62,7 @@ export function resolveDay(
   week: number,
   dow: number,
 ): ResolvedDay {
-  const dayIndex = cycleDayIndex(week, dow);
+  const dayIndex = cycleDayIndex(week, dow, cycleOffset(today, cycle.anchorMonday));
   const date = schoolDayDate(today, week, dow);
   const holiday = kitchen.schoolCalendar.holidays.find((h) => h.date === date);
   const operating = isOperatingDay(kitchen.schoolCalendar, date);

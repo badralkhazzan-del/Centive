@@ -21,6 +21,10 @@ interface View {
   cold: boolean;
   planned: string;
   deliveredAt?: string;
+  kopdesName?: string;
+  kitchenName?: string;
+  ingredientName?: [string, string];
+  live?: boolean;
 }
 
 export function TraceView() {
@@ -55,10 +59,27 @@ function TraceInner() {
       cold: batch.coldChainChecked,
       planned: batch.plannedDeliveryDate,
       deliveredAt: batch.deliveredAt,
+      live: Boolean(d.data.workspace && !d.data.workspace.sample),
     };
   } else {
     const p = decodeTrace(search.get("d"));
-    if (p) view = { code, ingredientId: p.i, kg: p.kg, grade: p.g, harvestDate: p.h, farmers: p.f, kopdesId: p.kd, kitchenId: p.kt, cold: p.c, planned: p.p };
+    if (p)
+      view = {
+        code,
+        ingredientId: p.i,
+        kg: p.kg,
+        grade: p.g,
+        harvestDate: p.h,
+        farmers: p.f,
+        kopdesId: p.kd,
+        kitchenId: p.kt,
+        cold: p.c,
+        planned: p.p,
+        kopdesName: p.kdn,
+        kitchenName: p.ktn,
+        ingredientName: p.in,
+        live: p.l === 1,
+      };
   }
 
   if (!view) {
@@ -74,13 +95,13 @@ function TraceInner() {
   const ing = d.ingredientsById.get(view.ingredientId);
   const animal = ing?.foodGroup === "animal_protein";
   const rows: [string, React.ReactNode][] = [
-    [t.trace.ingredient, `${ing?.emoji ?? ""} ${nm(ing)}`],
+    [t.trace.ingredient, ing ? `${ing.emoji} ${nm(ing)}` : view.ingredientName ? (lang === "id" ? view.ingredientName[1] : view.ingredientName[0]) : view.ingredientId],
     [t.trace.kg, formatKg(view.kg, lang)],
     [t.trace.grade, view.grade],
     [t.trace.harvest, formatDate(view.harvestDate, lang, { weekday: true, year: true })],
     [t.trace.farmers, view.farmers.map(([n, v]) => `${n} (${v})`).join(", ")],
-    [t.trace.kopdes, d.kopdesById.get(view.kopdesId)?.name ?? view.kopdesId],
-    [t.trace.kitchen, d.kitchensById.get(view.kitchenId)?.name ?? view.kitchenId],
+    [t.trace.kopdes, view.kopdesName ?? d.kopdesById.get(view.kopdesId)?.name ?? view.kopdesId],
+    [t.trace.kitchen, view.kitchenName ?? d.kitchensById.get(view.kitchenId)?.name ?? view.kitchenId],
     [t.trace.delivered, view.deliveredAt ? formatDateTime(view.deliveredAt, lang) : `${t.trace.notDelivered} (${formatDate(view.planned, lang, { weekday: true })})`],
     [t.trace.coldChain, animal ? (view.cold ? t.trace.coldOk : t.trace.coldMissing) : t.trace.coldNa],
   ];
@@ -118,9 +139,11 @@ function TraceInner() {
         <p className="flex items-center gap-2 text-muted">
           <ShieldCheck className="size-4" aria-hidden /> {t.trace.privacy}
         </p>
-        <p className="text-xs text-muted">
-          {t.common.demoData} · {t.common.fictional}
-        </p>
+        {view.live ? null : (
+          <p className="text-xs text-muted">
+            {t.common.demoData} · {t.common.fictional}
+          </p>
+        )}
       </footer>
     </article>
   );

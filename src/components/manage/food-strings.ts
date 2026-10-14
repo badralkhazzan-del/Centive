@@ -1,0 +1,76 @@
+"use client";
+
+import { useT } from "@/i18n";
+
+export const en = {
+  ingredient: "Ingredient",
+  status: "Status",
+  verified: "Verified",
+  toVerify: "To verify",
+  emoji: "Emoji",
+  emojiHint: "Optional, one emoji shown next to the name.",
+  addIngredient: "Add ingredient",
+  newIngredient: "New ingredient",
+  editIngredient: (name: string) => `Edit ${name}`,
+  noDelete: "Ingredients cannot be removed, because dishes and orders use them.",
+  edibleHint: "5 to 100. Share of the bought weight that is eaten.",
+  sourceHint: "For example the TKPI row link or who checked the value.",
+  thisWeek: (date: string) => `This week, starting ${date}`,
+  priceThisWeek: "Price this week (Rp)",
+  noPrice: "No price yet",
+  savedThisWeek: "Saved for this week",
+  toSave: (n: number) => `${n} ${n === 1 ? "price" : "prices"} to save`,
+  nothingToSave: "No changes to save.",
+  history: "Price history",
+  historyHint: "The last 8 weekly prices, oldest first.",
+  noHistory: "No prices for this ingredient yet.",
+  pasteLabel: "Rows to import",
+  pastePlaceholder: "eggs, 2026-10-12, 28500\ncarrots; 2026-10-12; 14.000",
+  validRows: (n: number) => `${n} ${n === 1 ? "row" : "rows"} ready to import`,
+  invalidRows: (n: number) => `${n} ${n === 1 ? "line" : "lines"} could not be read`,
+  lineN: (n: number) => `Line ${n}`,
+  badColumns: "needs 3 values: ingredient, week start, price",
+  badIngredient: "unknown ingredient",
+  badDate: "date must be yyyy-mm-dd",
+  badPrice: "price must be a number above 0",
+  readOnlyPrices: "Only the administrator or a Kopdes manager can change prices.",
+};
+
+export const id: typeof en = {
+  ingredient: "Bahan",
+  status: "Status",
+  verified: "Terverifikasi",
+  toVerify: "Perlu dicek",
+  emoji: "Emoji",
+  emojiHint: "Opsional, satu emoji di samping nama.",
+  addIngredient: "Tambah bahan",
+  newIngredient: "Bahan baru",
+  editIngredient: (name: string) => `Ubah ${name}`,
+  noDelete: "Bahan tidak bisa dihapus, karena dipakai oleh menu dan pesanan.",
+  edibleHint: "5 sampai 100. Bagian dari berat beli yang dimakan.",
+  sourceHint: "Misalnya tautan baris TKPI atau siapa yang mengecek nilainya.",
+  thisWeek: (date: string) => `Minggu ini, mulai ${date}`,
+  priceThisWeek: "Harga minggu ini (Rp)",
+  noPrice: "Belum ada harga",
+  savedThisWeek: "Sudah disimpan untuk minggu ini",
+  toSave: (n: number) => `${n} harga akan disimpan`,
+  nothingToSave: "Tidak ada perubahan untuk disimpan.",
+  history: "Riwayat harga",
+  historyHint: "8 harga mingguan terakhir, dari yang terlama.",
+  noHistory: "Belum ada harga untuk bahan ini.",
+  pasteLabel: "Baris untuk diimpor",
+  pastePlaceholder: "telur, 2026-10-12, 28500\nwortel; 2026-10-12; 14.000",
+  validRows: (n: number) => `${n} baris siap diimpor`,
+  invalidRows: (n: number) => `${n} baris tidak terbaca`,
+  lineN: (n: number) => `Baris ${n}`,
+  badColumns: "perlu 3 nilai: bahan, awal minggu, harga",
+  badIngredient: "bahan tidak dikenal",
+  badDate: "tanggal harus yyyy-mm-dd",
+  badPrice: "harga harus angka di atas 0",
+  readOnlyPrices: "Hanya administrator atau pengelola Kopdes yang bisa mengubah harga.",
+};
+
+export function useFoodStrings() {
+  const { lang } = useT();
+  return lang === "id" ? id : en;
+}

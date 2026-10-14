@@ -486,11 +486,13 @@ export interface NewBatchInput {
   coldChainChecked: boolean;
   harvestDate: string;
   plannedDeliveryDate: string;
+  /** Optional code chosen by the caller (live workspaces use a random one). */
+  code?: string;
 }
 
 export function createBatch(data: AppData, now: Now, input: NewBatchInput): { data: AppData; batch: Batch } {
   let seq = data.seq + 1;
-  let code = batchCodeFromSeq(seq);
+  let code = input.code && /^PT-[A-Z0-9]{4,8}$/.test(input.code) && !data.batches.some((b) => b.id === input.code) ? input.code : batchCodeFromSeq(seq);
   while (data.batches.some((b) => b.id === code)) {
     seq += 1;
     code = batchCodeFromSeq(seq);

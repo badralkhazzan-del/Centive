@@ -1,10 +1,14 @@
 "use client";
 
-import { ChartColumn, Play, Shuffle, Store } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Building2, ChartColumn, LogIn, Play, Shuffle, Store } from "lucide-react";
 import { LogoMark } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { useDemo } from "@/components/demo/demo-context";
 import { useT } from "@/i18n";
+import { useLiveMode, useLiveUser } from "@/lib/repo";
+import { roleOf } from "@/lib/repo/remote";
+import { ROLE_HOME } from "@/lib/roles";
 import { LoopDiagram } from "./loop-diagram";
 import { RoleCards } from "./role-cards";
 import { StatCards } from "./stat-cards";
@@ -12,6 +16,10 @@ import { StatCards } from "./stat-cards";
 export function LandingPage() {
   const { t } = useT();
   const demo = useDemo();
+  const live = useLiveMode();
+  const user = useLiveUser();
+  const ownRole = user ? roleOf(user) : null;
+  const home = ownRole ? ROLE_HOME[ownRole] : "/manage";
   const pillars = [
     { key: "forecast", Icon: ChartColumn, accent: false, ...t.landing.pillars.forecast },
     { key: "board", Icon: Store, accent: false, ...t.landing.pillars.board },
@@ -41,9 +49,17 @@ export function LandingPage() {
             <p className="max-w-xl text-lg text-foreground/90">{t.landing.heroTitle}</p>
             <p className="max-w-xl text-base text-muted">{t.landing.heroBody}</p>
             <div className="flex flex-wrap gap-3 pt-1">
-              <Button size="lg" variant="accent" onClick={demo.start} data-testid="hero-play-demo" className="hide-in-poster">
-                <Play aria-hidden /> {t.common.playDemo}
-              </Button>
+              {live ? (
+                <Button size="lg" asChild data-testid="hero-open-workspace">
+                  <Link href={home}>
+                    <ArrowRight aria-hidden /> {t.live.openWorkspace}
+                  </Link>
+                </Button>
+              ) : (
+                <Button size="lg" variant="accent" onClick={demo.start} data-testid="hero-play-demo" className="hide-in-poster">
+                  <Play aria-hidden /> {t.common.playDemo}
+                </Button>
+              )}
               <Button size="lg" variant="outline" asChild>
                 <a href="#roles">{t.landing.chooseRole}</a>
               </Button>
@@ -58,6 +74,32 @@ export function LandingPage() {
           </div>
         </div>
       </section>
+
+      {!live ? (
+        <section className="hide-in-poster mx-auto max-w-7xl px-4" aria-labelledby="live-title">
+          <div className="flex flex-col gap-4 rounded-2xl border border-primary/30 bg-primary-soft p-5 sm:flex-row sm:items-center sm:p-6">
+            <Building2 className="size-10 shrink-0 text-primary" aria-hidden />
+            <div className="flex-1">
+              <h2 id="live-title" className="text-xl font-bold text-primary-strong">
+                {t.live.liveTitle}
+              </h2>
+              <p className="text-sm text-foreground/90">{t.live.liveBody}</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild data-testid="landing-signup">
+                <Link href="/signup">
+                  <Building2 aria-hidden /> {t.live.createWorkspace}
+                </Link>
+              </Button>
+              <Button asChild variant="outline" data-testid="landing-login">
+                <Link href="/login">
+                  <LogIn aria-hidden /> {t.live.signIn}
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {/* Problem in numbers */}
       <section className="mx-auto max-w-7xl px-4 py-10" aria-labelledby="problem-title">

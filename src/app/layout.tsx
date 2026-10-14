@@ -8,6 +8,7 @@ import { OfflineBanner } from "@/components/layout/offline-banner";
 import { BOOT_SCRIPT, InlineScript } from "@/components/layout/inline-script";
 import { DemoProvider } from "@/components/demo/demo-provider";
 import { SkipLink } from "@/components/layout/skip-link";
+import { LiveGate } from "@/components/layout/live-gate";
 import { en } from "@/i18n/en";
 
 // Plus Jakarta Sans (Indonesian-designed, SIL Open Font License), self-hosted so the
@@ -46,7 +47,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <OfflineBanner />
             <AppHeader />
             <main id="main" tabIndex={-1} className="flex-1 focus-visible:outline-none">
-              {children}
+              <LiveGate>{children}</LiveGate>
             </main>
             <AppFooter />
           </DemoProvider>

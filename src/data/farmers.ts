@@ -28,7 +28,7 @@ const SPECS: Spec[] = [
   ["f-eko", "Eko", "Kotayasa", S, "male", "youth", 0.84, "2068", { chicken: 110, kangkung: 50, bananas: 150 }],
   ["f-slamet", "Slamet", "Sumbangsari", S, "male", "adult", 0.95, "6107", { chicken: 125, rice: 250, bananas: 50 }],
   ["f-bayu", "Bayu", "Sumbangsari", S, "male", "youth", 0.89, "4476", { catfish: 120, tilapia: 60, kangkung: 90 }],
-  ["f-rina", "Rina", "Kotayasa", S, "female", "youth", 0.87, "9153", { catfish: 100, spinach: 80, tempe: 55, kangkung: 40 }],
+  ["f-rina", "Rina", "Kotayasa", S, "female", "youth", 0.87, "9153", { catfish: 100, spinach: 80, tempe: 55, kangkung: 60 }],
   ["f-agus", "Agus", "Sumbangsari", S, "male", "adult", 0.82, "1880", { catfish: 70, tilapia: 65, rice: 235 }],
   ["f-tini", "Tini", "Sumbangsari", S, "female", "adult", 0.9, "5034", { catfish: 45, spinach: 75, tempe: 55, kangkung: 45 }],
   ["f-supri", "Supri", "Karangmulya", K, "male", "adult", 0.92, "6629", { chicken: 75, rice: 150, tilapia: 40, catfish: 35, spinach: 45 }],
