@@ -8,7 +8,6 @@ import {
   Flag,
   HandHeart,
   PackageCheck,
-  Play,
   Sprout,
   Target,
   TrendingUp,
@@ -16,7 +15,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { LogoMark } from "@/components/brand/logo";
-import { useDemo } from "@/components/demo/demo-context";
+import { OpenPlatformButton } from "@/components/guest/open-platform";
+import { useLiveMode } from "@/lib/repo";
 import { PageContainer } from "@/components/layout/page";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -36,7 +36,7 @@ function CardIcon({ Icon }: { Icon: LucideIcon }) {
 
 export function AboutPage() {
   const { t } = useT();
-  const demo = useDemo();
+  const live = useLiveMode();
   const cards: { key: string; Icon: LucideIcon; title: string; body: string }[] = [
     { key: "free", Icon: HandHeart, title: t.about.freeTitle, body: t.about.freeBody },
     { key: "scale", Icon: TrendingUp, title: t.about.scaleTitle, body: t.about.scaleBody },
@@ -140,10 +140,8 @@ export function AboutPage() {
         </section>
 
         {/* Next steps */}
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Button size="lg" variant="accent" onClick={demo.start}>
-            <Play aria-hidden /> {t.common.playDemo}
-          </Button>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+          {live ? null : <OpenPlatformButton testId="about-open-platform" />}
           <Button size="lg" variant="outline" asChild>
             <Link href="/simulation">
               <FlaskConical className="text-primary" aria-hidden /> {t.common.simulationLab}

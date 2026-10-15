@@ -1,7 +1,7 @@
 import type { Farmer } from "@/types";
 
 // 18 fictional member farmers (first names only, masked phone numbers).
-// Capacities are kg per week the farmer can commit to MBG kitchens. Demo data.
+// Capacities are kg per week the farmer can commit to MBG kitchens. Fictional sample data.
 
 type Spec = [
   id: string,

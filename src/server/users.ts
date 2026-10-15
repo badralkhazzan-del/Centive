@@ -18,6 +18,7 @@ interface UserRow {
   invite_expires: string | Date | null;
   created_at: string | Date;
   last_login: string | Date | null;
+  guest?: boolean;
 }
 
 export interface PublicUser {
@@ -41,7 +42,7 @@ export class UserError extends Error {
 const iso = (v: string | Date | null) => (v ? new Date(v).toISOString() : null);
 
 function toSession(r: UserRow): SessionUser {
-  return { id: r.id, workspaceId: r.workspace_id, name: r.name, login: r.login, role: r.role, entityId: r.entity_id };
+  return { id: r.id, workspaceId: r.workspace_id, name: r.name, login: r.login, role: r.role, entityId: r.entity_id, guest: Boolean(r.guest) };
 }
 
 function toPublic(r: UserRow): PublicUser {
@@ -64,7 +65,7 @@ export function validPassword(pw: unknown): pw is string {
 
 export async function getUser(id: string): Promise<SessionUser | null> {
   const db = await getDb();
-  const rows = await db.query<UserRow>(`select * from pt_users where id = $1`, [id]);
+  const rows = await db.query<UserRow>(`select u.*, w.guest from pt_users u join pt_workspaces w on w.id = u.workspace_id where u.id = $1`, [id]);
   return rows[0] ? toSession(rows[0]) : null;
 }
 
@@ -85,20 +86,20 @@ export async function createAdmin(workspaceId: string, name: string, rawLogin: s
   return { id, workspaceId, name: name.trim(), login, role: "admin", entityId: null };
 }
 
-async function throttle(key: string): Promise<void> {
+export async function throttle(key: string, max = MAX_ATTEMPTS): Promise<void> {
   const db = await getDb();
   const rows = await db.query<{ count: number; reset_at: string | Date }>(`select count, reset_at from pt_login_attempts where key = $1`, [key]);
   const row = rows[0];
-  if (row && new Date(row.reset_at).getTime() > Date.now() && row.count >= MAX_ATTEMPTS) throw new UserError("rate_limited");
+  if (row && new Date(row.reset_at).getTime() > Date.now() && row.count >= max) throw new UserError("rate_limited");
 }
 
-async function recordFailure(key: string) {
+export async function recordFailure(key: string, windowMin = WINDOW_MIN) {
   const db = await getDb();
   await db.query(
-    `insert into pt_login_attempts (key, count, reset_at) values ($1, 1, now() + interval '${WINDOW_MIN} minutes')
+    `insert into pt_login_attempts (key, count, reset_at) values ($1, 1, now() + interval '${windowMin} minutes')
      on conflict (key) do update set
        count = case when pt_login_attempts.reset_at < now() then 1 else pt_login_attempts.count + 1 end,
-       reset_at = case when pt_login_attempts.reset_at < now() then now() + interval '${WINDOW_MIN} minutes' else pt_login_attempts.reset_at end`,
+       reset_at = case when pt_login_attempts.reset_at < now() then now() + interval '${windowMin} minutes' else pt_login_attempts.reset_at end`,
     [key],
   );
 }

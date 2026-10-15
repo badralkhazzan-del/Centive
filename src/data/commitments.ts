@@ -1,8 +1,8 @@
-// Accepted production commitments at the start of the demo (fictional).
+// Accepted production commitments in the sample region (fictional).
 // [farmerId, kopdesId (the ordering Kopdes), ingredientId, weeks, kg per week]
 // Weeks are planning weeks (1 = next week). Every row respects the 30% fairness cap.
 // Eggs for Kopdes Sumbangsari are deliberately short in weeks 3 to 6 (62% covered):
-// that gap is what the Demo Mode resolves.
+// that gap is what the sample region lets people resolve.
 
 const W = (from: number, to: number) => Array.from({ length: to - from + 1 }, (_, i) => from + i);
 const ODD = [1, 3, 5];

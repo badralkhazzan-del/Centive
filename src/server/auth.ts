@@ -19,6 +19,8 @@ export interface SessionUser {
   login: string | null;
   role: UserRole;
   entityId: string | null;
+  /** A visitor's private copy of the sample region, opened without an account. */
+  guest?: boolean;
 }
 
 export function newId(prefix: string): string {

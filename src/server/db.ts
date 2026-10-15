@@ -36,6 +36,8 @@ create table if not exists pt_users (
   last_login timestamptz
 );
 create index if not exists pt_users_workspace on pt_users(workspace_id);
+alter table pt_workspaces add column if not exists guest boolean not null default false;
+create index if not exists pt_workspaces_guest on pt_workspaces(guest, updated_at);
 create table if not exists pt_login_attempts (
   key text primary key,
   count integer not null,

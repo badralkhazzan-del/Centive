@@ -65,7 +65,7 @@ function NoDatabase() {
     <AuthShell title={t.live.noDbTitle} icon={Database}>
       <p className="text-muted">{t.live.noDbBody}</p>
       <Button asChild variant="accent">
-        <Link href="/">{t.live.tryDemo}</Link>
+        <Link href="/">{t.common.goHome}</Link>
       </Button>
     </AuthShell>
   );

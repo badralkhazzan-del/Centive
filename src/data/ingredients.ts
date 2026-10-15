@@ -7,7 +7,7 @@ import type { Ingredient } from "@/types";
 // published copies of the table, row codes in dataSource. Two items have no TKPI row
 // and stay verified: false (catfish, tilapia); Settings -> Data sources lists them.
 
-// Seasonality: availability index per month, Jan..Dec (0 to 1). Demo assumptions.
+// Seasonality: availability index per month, Jan..Dec (0 to 1). Sample assumptions.
 const FLAT = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 const RICE = [0.7, 0.8, 1, 1, 0.9, 0.8, 0.8, 0.95, 0.9, 0.8, 0.7, 0.65];
 const LEAFY_RAINY = [1, 1, 0.95, 0.9, 0.8, 0.7, 0.7, 0.7, 0.75, 0.85, 1, 1];

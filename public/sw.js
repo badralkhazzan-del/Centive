@@ -1,7 +1,7 @@
 /*
  * PiringTani service worker.
  *
- * Goal: the demo keeps working offline after the first load. No dependencies,
+ * Goal: pages already opened stay readable offline after the first load. No dependencies,
  * no build step. Registered by src/components/layout/providers.tsx in production.
  *
  * Strategies
@@ -19,7 +19,7 @@
  * Bump VERSION to drop every cache from older versions on activate.
  */
 
-const VERSION = "v2";
+const VERSION = "v3";
 const PREFIX = "piringtani-";
 const CACHE = {
   pages: `${PREFIX}pages-${VERSION}`,
@@ -47,6 +47,7 @@ const ROUTES = [
   "/settings",
   "/about",
   "/manage",
+  "/explore",
   "/login",
   "/signup",
 ];

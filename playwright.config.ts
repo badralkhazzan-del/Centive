@@ -2,8 +2,8 @@ import { defineConfig, devices } from "@playwright/test";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-// End-to-end tests against a production build: Demo Mode played from a fresh browser,
-// and a multi-user live workspace (on an embedded Postgres in a temp folder).
+// End-to-end tests against a production build, on an embedded Postgres in a temp
+// folder: a visitor's guest copy of the sample region, and a multi-user workspace.
 const PORT = 3210;
 
 export default defineConfig({

@@ -1,12 +1,13 @@
 import type { AppData, Role, UiState } from "@/types";
-import { buildEmptyState } from "@/data/seed";
-import { reloadTo, todayIso } from "@/lib/live-client";
+import { buildSeedState } from "@/data/seed";
+import { isLiveBrowser, LANG_KEY, LIVE_COOKIE, reloadTo, todayIso } from "@/lib/live-client";
 import { COMMANDS } from "./registry";
 import type { LiveUser, Repository, RepositoryActions } from "./types";
 
-// Live repository: the workspace lives on the server. Every change runs at once on
-// the local copy (same pure command as the server) and is then sent to /api/command,
-// whose answer replaces the local copy. Other people's changes arrive by polling.
+// The workspace lives on the server. Every change runs at once on the local copy
+// (same pure command as the server) and is then sent to /api/command, whose answer
+// replaces the local copy. Other people's changes arrive by polling. A browser that
+// is not signed in keeps a read-only sample copy for the public pages and never polls.
 
 const POLL_MS = 4000;
 
@@ -25,12 +26,13 @@ function randomCode(): string {
 }
 
 export function createRemoteRepository(): Repository {
-  let data: AppData = buildEmptyState(todayIso());
+  const signedIn = isLiveBrowser();
+  let data: AppData = buildSeedState(todayIso());
   let version = -1;
   let user: LiveUser | null = null;
   let ui: UiState = data.ui;
   let view: AppData = data;
-  let hydrated = false;
+  let hydrated = !signedIn;
   let started = false;
   let queue: Promise<unknown> = Promise.resolve();
   let pending = 0;
@@ -41,6 +43,7 @@ export function createRemoteRepository(): Repository {
   const saveUi = () => {
     try {
       localStorage.setItem(uiKey(), JSON.stringify(ui));
+      localStorage.setItem(LANG_KEY, ui.lang);
     } catch {
       /* per-device preference only */
     }
@@ -49,6 +52,8 @@ export function createRemoteRepository(): Repository {
     try {
       const raw = localStorage.getItem(uiKey());
       if (raw) ui = { ...ui, ...(JSON.parse(raw) as Partial<UiState>) };
+      const lang = localStorage.getItem(LANG_KEY);
+      if (lang === "en" || lang === "id") ui = { ...ui, lang };
     } catch {
       /* ignore */
     }
@@ -81,9 +86,11 @@ export function createRemoteRepository(): Repository {
   };
 
   const onUnauthorized = () => {
-    document.cookie = "pt_live=; path=/; max-age=0";
+    const wasGuest = Boolean(user?.guest);
+    document.cookie = `${LIVE_COOKIE}=; path=/; max-age=0`;
     emitError("unauthorized");
-    reloadTo("/login?expired=1");
+    // A guest copy that was cleaned up: back to the same page, which offers a fresh one.
+    reloadTo(wasGuest || !user ? `${window.location.pathname}?ended=1` : "/login?expired=1");
   };
 
   async function fetchData(force = false) {
@@ -114,6 +121,11 @@ export function createRemoteRepository(): Repository {
   function startPolling() {
     if (started || typeof window === "undefined") return;
     started = true;
+    if (!signedIn) {
+      loadUi();
+      publish();
+      return;
+    }
     void fetchData(true);
     window.setInterval(() => {
       if (document.visibilityState === "visible") void fetchData();
@@ -125,7 +137,7 @@ export function createRemoteRepository(): Repository {
   /** Apply a command locally (instant feedback), then on the server (authoritative). */
   function run<T = unknown>(name: string, args: unknown[]): T | undefined {
     const spec = COMMANDS[name];
-    if (!spec) return undefined;
+    if (!spec || !signedIn) return undefined;
     const now = new Date().toISOString();
     const local = spec.run(data, now, args);
     data = local.data;
@@ -191,12 +203,10 @@ export function createRemoteRepository(): Repository {
     markFarmersPaid: (batchId) => void run("markFarmersPaid", [batchId]),
     addPlateFeedback: (kitchenId, date, dishId, leftover) => void run("addPlateFeedback", [kitchenId, date, dishId, leftover]),
     updateSettings: (patch) => void run("updateSettings", [patch]),
-    resetDemo: () => undefined,
     exec: (name, args) => run(name, args),
   };
 
   const repo: Repository = {
-    mode: "live",
     getState: () => view,
     subscribe: (l) => {
       listeners.add(l);

@@ -1,6 +1,6 @@
 import type { AppData, ChatMessage, Commitment, Settings } from "@/types";
 import { commitmentBand, indexPrices } from "@/engines/priceBand";
-import { addDays, DEMO_TODAY, isoAt, mondayOf, weekStart } from "@/engines/time";
+import { addDays, SAMPLE_DATE, isoAt, mondayOf, weekStart } from "@/engines/time";
 import { SEED_COMMITMENTS } from "./commitments";
 import { DISHES } from "./dishes";
 import { buildFarmers } from "./farmers";
@@ -31,7 +31,7 @@ export const DEFAULT_SETTINGS: Settings = {
     surplusThreshold: 1.2,
     maxStapleTopUpG: 40,
   },
-  // Estimated weekly market supply around each Kopdes (kg/week, L for oil). Demo assumptions.
+  // Estimated weekly market supply around each Kopdes (kg/week, L for oil). Sample assumptions.
   marketSupplyKgPerWeek: {
     rice: 20000,
     chicken: 6000,
@@ -84,8 +84,8 @@ function seedChat(today: string): ChatMessage[] {
   ];
 }
 
-/** The fictional sample region. `today` defaults to the fixed demo date; live workspaces pass the real date. */
-export function buildSeedState(today: string = DEMO_TODAY): AppData {
+/** The fictional sample region. `today` defaults to SAMPLE_DATE (tests); workspaces pass the real date. */
+export function buildSeedState(today: string = SAMPLE_DATE): AppData {
   const ingredients = INGREDIENTS.map((i) => ({ ...i, allergens: [...i.allergens], seasonalityByMonth: [...i.seasonalityByMonth] }));
   const dishes = DISHES.map((d) => ({ ...d, components: d.components.map((c) => ({ ...c, gramsPerPortion: { ...c.gramsPerPortion } })) }));
   const kitchens = buildKitchens();
@@ -160,8 +160,8 @@ export function buildSeedState(today: string = DEMO_TODAY): AppData {
         id: "log-seed",
         timestamp: isoAt(today, "06:00"),
         actorRole: "system",
-        action: "demo_loaded",
-        details: "Fictional demo data loaded (Banyumas, Central Java).",
+        action: "sample_loaded",
+        details: "Fictional sample region loaded (Banyumas, Central Java).",
       },
     ],
     chat: seedChat(today),

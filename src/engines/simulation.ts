@@ -6,7 +6,7 @@ import { makeBand, settlementPrice } from "./priceBand";
 import { gaussian, mulberry32 } from "./rng";
 import { suggestForTrigger, toOverride, type SubstitutionContext, type Trigger } from "./substitution";
 
-// 6.7 Simulation Lab. A deterministic, seeded 8-week simulation of the demo region
+// 6.7 Simulation Lab. A deterministic, seeded 8-week simulation of the sample region
 // (3 kitchens, 2 Kopdes, 18 farmers) comparing two strategies under the same shocks.
 //
 //   Baseline: weekly spot buying through middlemen; a fixed share (default 15%) of
@@ -20,7 +20,7 @@ import { suggestForTrigger, toOverride, type SubstitutionContext, type Trigger }
 // Same seed, same inputs -> identical numbers (no Math.random, no clock).
 
 export const SIM_WEEKS = [1, 2, 3, 4, 5, 6, 7, 8];
-export const DEMO_VILLAGE_KOPDES = "kd-sumbangsari";
+export const SAMPLE_VILLAGE_KOPDES = "kd-sumbangsari";
 
 export interface SimulationParams {
   seed: number;
@@ -336,7 +336,7 @@ function runBaseline(input: SimulationInput, p: SimulationParams, env: Env, dish
           const take = Math.min(cap, left);
           left -= take;
           engaged.add(f.id);
-          if (kdId === DEMO_VILLAGE_KOPDES) led.farmerIncome += take * price * (1 - SIM_ASSUMPTIONS.kopdesMargin);
+          if (kdId === SAMPLE_VILLAGE_KOPDES) led.farmerIncome += take * price * (1 - SIM_ASSUMPTIONS.kopdesMargin);
         }
       }
     }
@@ -560,7 +560,7 @@ function runPiringTani(input: SimulationInput, p: SimulationParams, env: Env, di
         const kg = a.kg * ratio;
         if (kg <= 0) continue;
         engaged.add(a.farmerId);
-        if (a.kopdesId === DEMO_VILLAGE_KOPDES) led.farmerIncome += kg * settle * (1 - SIM_ASSUMPTIONS.kopdesMargin);
+        if (a.kopdesId === SAMPLE_VILLAGE_KOPDES) led.farmerIncome += kg * settle * (1 - SIM_ASSUMPTIONS.kopdesMargin);
       }
     }
   }

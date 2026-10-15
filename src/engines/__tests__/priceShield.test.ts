@@ -3,11 +3,11 @@ import { INGREDIENTS } from "@/data/ingredients";
 import { buildPrices } from "@/data/prices";
 import { indexPrices } from "@/engines/priceBand";
 import { groupAlerts, priceShieldAlerts } from "@/engines/priceShield";
-import { DEMO_TODAY } from "@/engines/time";
+import { SAMPLE_DATE } from "@/engines/time";
 
 const prices = indexPrices(buildPrices());
 const base = {
-  today: DEMO_TODAY,
+  today: SAMPLE_DATE,
   weeks: [1, 2, 3, 4, 5, 6, 7, 8],
   ingredients: INGREDIENTS,
   prices,

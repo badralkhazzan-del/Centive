@@ -1,6 +1,6 @@
 import type { AppData, AuditLog, Dish, DishComponent, Farmer, FarmerCommodity, Ingredient, Kitchen, Kopdes, PricePoint, PriceSource } from "@/types";
 import { BASE_MENU_DAYS } from "@/data/menu";
-import { DEMO_CALENDAR } from "@/data/places";
+import { SAMPLE_CALENDAR } from "@/data/places";
 import { mondayOf, weekStart } from "@/engines/time";
 import type { Now } from "./commands";
 
@@ -74,7 +74,7 @@ export function saveKitchen(data: AppData, now: Now, input: KitchenInput): AppDa
       large: Math.round(clamp(num(input.beneficiaries?.large, existing?.beneficiaries.large ?? 0), 0, 20000)),
     },
     attendanceRate: clamp(num(input.attendanceRate, existing?.attendanceRate ?? data.settings.attendanceRate), 0.5, 1),
-    schoolCalendar: existing?.schoolCalendar ?? { operatingWeekdays: [...DEMO_CALENDAR.operatingWeekdays], holidays: [] },
+    schoolCalendar: existing?.schoolCalendar ?? { operatingWeekdays: [...SAMPLE_CALENDAR.operatingWeekdays], holidays: [] },
     linkedKopdesIds: linked,
     kopdesOrderShare: share,
     paymentSlaDays: Math.round(clamp(num(input.paymentSlaDays, existing?.paymentSlaDays ?? data.settings.paymentSlaDays), 1, 60)),

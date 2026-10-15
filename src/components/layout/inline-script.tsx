@@ -12,4 +12,4 @@ export function InlineScript({ html }: { html: string }) {
 }
 
 // Poster mode (?poster=1) and language preference are applied before paint.
-export const BOOT_SCRIPT = `(function(){try{var d=document.documentElement;var q=new URLSearchParams(location.search);if(q.get('poster')==='1'){d.setAttribute('data-poster','1')}var raw=localStorage.getItem('piringtani-demo');if(raw){var s=JSON.parse(raw);var l=s&&s.state&&s.state.data&&s.state.data.ui&&s.state.data.ui.lang;if(l==='id'){d.lang='id';d.setAttribute('data-hydrating','1');setTimeout(function(){d.removeAttribute('data-hydrating')},2500)}}}catch(e){}})();`;
+export const BOOT_SCRIPT = `(function(){try{var d=document.documentElement;var q=new URLSearchParams(location.search);if(q.get('poster')==='1'){d.setAttribute('data-poster','1')}var l=localStorage.getItem('piringtani-lang');if(l){if(l==='id'){d.lang='id';d.setAttribute('data-hydrating','1');setTimeout(function(){d.removeAttribute('data-hydrating')},2500)}}}catch(e){}})();`;

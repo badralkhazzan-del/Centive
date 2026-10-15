@@ -391,7 +391,7 @@ export interface UiState {
   activeFarmerId: string;
 }
 
-/** Set for live (server) workspaces; absent in the local demo. */
+/** Set for workspaces on the server; absent in the read-only public copy. */
 export interface WorkspaceMeta {
   id: string;
   name: string;

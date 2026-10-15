@@ -7,7 +7,7 @@ import { seed } from "./fixtures";
 
 const NOW = "2026-10-26T09:00:00.000Z";
 
-describe("Repository commands (demo flows)", () => {
+describe("Repository commands (sample region flows)", () => {
   it("sends Pak Darto an eggs offer of 50 kg/week for weeks 3-6", () => {
     const r = cmd.sendOffers(seed(), NOW, "kd-sumbangsari", "eggs");
     expect(r.offerWeeks).toEqual([3, 4, 5, 6]);

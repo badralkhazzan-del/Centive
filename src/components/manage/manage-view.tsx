@@ -7,7 +7,7 @@ import { HydrationGate } from "@/components/common/gate";
 import { PageContainer, PageHeader } from "@/components/layout/page";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useT } from "@/i18n";
-import { useLiveMode } from "@/lib/repo";
+import { useGuest, useLiveMode } from "@/lib/repo";
 import { DishesTab } from "./dishes-tab";
 import { FarmersTab } from "./farmers-tab";
 import { IngredientsTab } from "./ingredients-tab";
@@ -46,10 +46,11 @@ const PANELS: Record<ManageTab, () => React.ReactNode> = {
 export function ManageView() {
   const { t } = useT();
   const live = useLiveMode();
+  const guest = useGuest();
   const perms = usePermissions();
   const params = useSearchParams();
 
-  // Tabs each role can use. People and Workspace need a live (server) workspace.
+  // Tabs each role can use. People and Workspace need a signed-in workspace.
   const visible = MANAGE_TABS.filter((tab) => {
     if (tab === "team") return live && (perms.isAdmin || perms.role === "kopdes");
     if (tab === "workspace") return live && perms.isAdmin;
@@ -92,7 +93,7 @@ export function ManageView() {
             </TabsContent>
           ))}
         </Tabs>
-        {live && !perms.isAdmin ? (
+        {live && !perms.isAdmin && !guest ? (
           <div className="mt-10 max-w-2xl">
             <PasswordCard />
           </div>

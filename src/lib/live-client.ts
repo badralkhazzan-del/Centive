@@ -1,8 +1,11 @@
-// Browser helpers for live workspaces.
+// Browser helpers for workspaces on the server.
 
+/** Set by the server next to the HttpOnly session cookie, so the browser knows it is signed in. */
 export const LIVE_COOKIE = "pt_live";
+/** Language preference on this device (read before first paint by the boot script). */
+export const LANG_KEY = "piringtani-lang";
 
-/** True when this browser has signed in to a live workspace. */
+/** True when this browser has signed in to a workspace. */
 export function isLiveBrowser(): boolean {
   return typeof document !== "undefined" && new RegExp(`(?:^|; )${LIVE_COOKIE}=1`).test(document.cookie);
 }
@@ -42,9 +45,15 @@ export async function api<T>(path: string, init?: { method?: string; body?: unkn
 }
 
 /**
- * Full page load. Needed after signing in or out: the browser picks the demo or the
- * live repository when the app starts, so a client-side route change is not enough.
+ * Full page load. Needed after signing in or out: the browser reads its session when
+ * the app starts, so a client-side route change is not enough.
  */
 export function reloadTo(path: string) {
   window.location.assign(path);
+}
+
+/** Open a private copy of the sample region (no account) and go to `path`. */
+export async function startGuest(path: string) {
+  await api("/api/guest", { body: {} });
+  reloadTo(path);
 }

@@ -159,7 +159,7 @@ export function SimulationLab() {
     [`${S.shockChicken}`, `${t.common.weekN(params.chicken.week)}: ${formatRp(params.chicken.from, lang)} → ${formatRp(params.chicken.to, lang)}/kg`],
     [`${S.shockEggs}`, `${t.common.weekN(params.eggs.week)}: −${formatPct(params.eggs.shortfall, lang)}`],
     [`${S.shockVeg}`, `${t.common.weekN(params.veg.week)}: ${params.veg.ingredientId === "kangkung" ? "kangkung" : lang === "id" ? "bayam" : "spinach"} +${formatPct(params.veg.surplus, lang)}`],
-    [lang === "id" ? "Wilayah demo" : "Demo region", lang === "id" ? "3 dapur (±3.000 anak), 2 Kopdes, 18 petani (fiktif)" : "3 kitchens (~3,000 children each), 2 Kopdes, 18 farmers (fictional)"],
+    [lang === "id" ? "Wilayah contoh" : "Sample region", lang === "id" ? "3 dapur (±3.000 anak), 2 Kopdes, 18 petani (fiktif)" : "3 kitchens (~3,000 children each), 2 Kopdes, 18 farmers (fictional)"],
     [lang === "id" ? "Kehadiran" : "Attendance", `${formatPct(0.92, lang)} ± ${formatPct(SIM_ASSUMPTIONS.attendanceSd, lang, 1)} (${lang === "id" ? "acak per minggu" : "random per week"})`],
     [lang === "id" ? "Harga normal" : "Normal prices", lang === "id" ? `Rata-rata 4 minggu placeholder, ± ${formatPct(SIM_ASSUMPTIONS.priceNoiseSd, lang)} per minggu` : `4-week placeholder average, ± ${formatPct(SIM_ASSUMPTIONS.priceNoiseSd, lang)} per week`],
     [lang === "id" ? "Harga saat telur kurang" : "Eggs price in the shortfall", `+${formatPct(SIM_ASSUMPTIONS.shortagePriceRise, lang)}`],

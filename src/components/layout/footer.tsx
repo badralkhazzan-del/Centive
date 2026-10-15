@@ -9,7 +9,7 @@ export function AppFooter() {
   const { t } = useT();
   const live = useLiveMode();
   const data = useAppData();
-  // Real workspaces hold real data; the fictional-data notice applies to the demo and the sample region.
+  // Real workspaces hold real data; the fictional-data notice applies to the sample region.
   const fictional = !live || Boolean(data.workspace?.sample);
   return (
     <>
@@ -22,7 +22,7 @@ export function AppFooter() {
               <p>{t.footer.competition}</p>
               {fictional ? (
                 <p>
-                  <span className="mr-2 rounded-full bg-accent-soft px-2 py-0.5 text-xs font-bold text-accent-strong">{t.common.demoData}</span>
+                  <span className="mr-2 rounded-full bg-accent-soft px-2 py-0.5 text-xs font-bold text-accent-strong">{t.common.sampleData}</span>
                   <span data-testid="footer-fictional">{t.common.fictional}</span>
                 </p>
               ) : (
@@ -40,7 +40,7 @@ export function AppFooter() {
       </footer>
       {fictional ? (
         <p className="show-in-poster fixed bottom-2 right-3 text-xs font-semibold text-muted">
-          {t.common.demoData} · {t.common.fictional}
+          {t.common.sampleData} · {t.common.fictional}
         </p>
       ) : null}
     </>

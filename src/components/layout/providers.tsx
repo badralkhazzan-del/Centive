@@ -7,7 +7,7 @@ import { useT } from "@/i18n";
 
 const HydratedContext = createContext(false);
 
-/** True once the saved demo data has been loaded from this browser. */
+/** True once the page is mounted and the workspace data has loaded. */
 export function useHydrated() {
   return useContext(HydratedContext);
 }
@@ -44,15 +44,15 @@ function registerServiceWorker() {
 export function AppProviders({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
   const lang = useAppData().ui.lang;
-  // Demo: ready once mounted (localStorage is read at module load). Live: once the first server load arrives.
-  const hydrated = mounted && (repo.mode === "demo" || repo.hasHydrated());
+  // Ready once mounted and, when signed in, once the first server load has arrived.
+  const hydrated = mounted && repo.hasHydrated();
 
   useEffect(() => {
     repo.hydrate();
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time switch after client-only storage loads
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time switch after mounting
     setMounted(true);
     registerServiceWorker();
-    // Live workspaces show their own loading screen, so the page can be revealed now.
+    // Workspace screens show their own loading screen, so the page can be revealed now.
     document.documentElement.removeAttribute("data-hydrating");
   }, []);
 
@@ -70,7 +70,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Live mode: tell the user when a change was refused or the server is unreachable. */
+/** Tell the user when a change was refused or the server is unreachable. */
 function LiveErrors() {
   const notify = useToast();
   const { t } = useT();

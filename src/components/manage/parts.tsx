@@ -22,7 +22,7 @@ export function useSave() {
   };
 }
 
-/** What the current person may edit. Demo (no account) may edit everything locally. */
+/** What the current person may edit. Admins edit everything; others only their own records. */
 export function usePermissions() {
   const user = useLiveUser();
   const role = user?.role ?? "admin";

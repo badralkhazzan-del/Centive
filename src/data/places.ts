@@ -4,20 +4,20 @@ import type { Kitchen, Kopdes, SchoolCalendar } from "@/types";
 // Central Java (Sumbang, Kembaran). Coordinates are approximate and only place
 // the markers in the right area of the map.
 
-export const DEMO_CALENDAR: SchoolCalendar = {
+export const SAMPLE_CALENDAR: SchoolCalendar = {
   operatingWeekdays: [1, 2, 3, 4, 5],
   holidays: [{ date: "2026-12-25", nameEn: "Christmas Day (public holiday)", nameId: "Hari Raya Natal (libur nasional)" }],
 };
 
 const calendar = (): SchoolCalendar => ({
-  operatingWeekdays: [...DEMO_CALENDAR.operatingWeekdays],
-  holidays: DEMO_CALENDAR.holidays.map((h) => ({ ...h })),
+  operatingWeekdays: [...SAMPLE_CALENDAR.operatingWeekdays],
+  holidays: SAMPLE_CALENDAR.holidays.map((h) => ({ ...h })),
 });
 
 export const KOPDES: Kopdes[] = [
   {
     id: "kd-sumbangsari",
-    name: "Kopdes Merah Putih Sumbangsari (demo)",
+    name: "Kopdes Merah Putih Sumbangsari (sample)",
     village: "Sumbangsari",
     subdistrict: "Sumbang",
     lat: -7.3905,
@@ -27,7 +27,7 @@ export const KOPDES: Kopdes[] = [
   },
   {
     id: "kd-karangmulya",
-    name: "Kopdes Merah Putih Karangmulya (demo)",
+    name: "Kopdes Merah Putih Karangmulya (sample)",
     village: "Karangmulya",
     subdistrict: "Kembaran",
     lat: -7.4205,
@@ -41,7 +41,7 @@ export function buildKitchens(): Kitchen[] {
   return [
     {
       id: "k-sumbang-1",
-      name: "SPPG Demo Sumbang 1",
+      name: "SPPG Sumbang 1 (sample)",
       subdistrict: "Sumbang",
       village: "Sumbangsari",
       lat: -7.3962,
@@ -57,7 +57,7 @@ export function buildKitchens(): Kitchen[] {
     },
     {
       id: "k-sumbang-2",
-      name: "SPPG Demo Sumbang 2",
+      name: "SPPG Sumbang 2 (sample)",
       subdistrict: "Sumbang",
       village: "Sumbangsari",
       lat: -7.3778,
@@ -73,7 +73,7 @@ export function buildKitchens(): Kitchen[] {
     },
     {
       id: "k-kembaran-1",
-      name: "SPPG Demo Kembaran 1",
+      name: "SPPG Kembaran 1 (sample)",
       subdistrict: "Kembaran",
       village: "Karangmulya",
       lat: -7.4292,

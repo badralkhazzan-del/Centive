@@ -128,38 +128,6 @@ body {
   );
 }
 
-/* Demo Mode spotlight on the element of the current step. */
-[data-tour-active="true"] {
-  position: relative;
-  z-index: 40;
-  border-radius: 16px;
-  box-shadow:
-    0 0 0 4px var(--accent),
-    0 0 0 10px rgb(227 162 26 / 0.28);
-  transition: box-shadow 300ms ease;
-}
-
-/* Demo Mode: autoplay countdown in the step card. */
-@keyframes pt-progress {
-  from {
-    width: 0%;
-  }
-  to {
-    width: 100%;
-  }
-}
-.demo-progress {
-  width: 0%;
-  animation-name: pt-progress;
-  animation-timing-function: linear;
-  animation-fill-mode: forwards;
-}
-@media (prefers-reduced-motion: reduce) {
-  .demo-progress {
-    animation: none;
-  }
-}
-
 @keyframes pt-dash {
   to {
     stroke-dashoffset: -24;

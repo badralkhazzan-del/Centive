@@ -20,7 +20,7 @@ export function initialData(meta: Omit<WorkspaceMeta, "createdAt">, start: Start
   if (start === "sample") {
     data.auditLog = [
       { id: "log-sample", timestamp: at.toISOString(), actorRole: "system", action: "sample_loaded", details: `Fictional sample region loaded for ${meta.name}.` },
-      ...data.auditLog.filter((l) => l.action !== "demo_loaded"),
+      ...data.auditLog.filter((l) => l.id !== "log-seed"),
     ];
   }
   return data;
@@ -119,11 +119,11 @@ export async function runCommand(user: SessionUser, name: string, args: unknown[
   });
 }
 
-export async function createWorkspace(input: { name: string; region: string; timezone?: string; start: StartWith }, at = new Date()) {
+export async function createWorkspace(input: { name: string; region: string; timezone?: string; start: StartWith; guest?: boolean }, at = new Date()) {
   const db = await getDb();
   const id = newId("ws");
   const data = initialData({ id, name: input.name, region: input.region, timezone: input.timezone ?? DEFAULT_TIMEZONE, sample: input.start === "sample" }, input.start, at);
-  await db.query(`insert into pt_workspaces (id, name, data, version) values ($1, $2, $3::jsonb, 1)`, [id, input.name, JSON.stringify(data)]);
+  await db.query(`insert into pt_workspaces (id, name, data, version, guest) values ($1, $2, $3::jsonb, 1, $4)`, [id, input.name, JSON.stringify(data), Boolean(input.guest)]);
   return { id, data };
 }
 

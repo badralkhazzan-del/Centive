@@ -2,11 +2,10 @@ import type { AppData, Batch, Kitchen, Lang, Leftover, Role, Settings, Substitut
 import type { NewBatchInput, OfferResult } from "./commands";
 
 /**
- * The repository is the only way the UI reads or changes data. The prototype ships
- * a local implementation (Zustand + localStorage). A server-backed implementation
- * (for example Supabase) can implement the same interface without touching the UI.
+ * The repository is the only way the UI reads or changes data. It applies each
+ * command at once on the local copy and on the server, which has the final word.
  */
-/** The signed-in user of a live workspace (as returned by the server). */
+/** The signed-in user of a workspace (as returned by the server). */
 export interface LiveUser {
   id: string;
   workspaceId: string;
@@ -14,21 +13,21 @@ export interface LiveUser {
   login: string | null;
   role: "admin" | "kitchen" | "kopdes" | "farmer" | "viewer";
   entityId: string | null;
+  /** A visitor's private copy of the sample region, opened without an account. */
+  guest?: boolean;
 }
 
 export interface Repository {
-  /** "demo": the fixed-date sample in this browser. "live": a shared workspace on the server. */
-  mode: "demo" | "live";
   getState(): AppData;
   subscribe(listener: () => void): () => void;
   /** Load persisted data (client only). */
   hydrate(): void;
   hasHydrated(): boolean;
-  /** Live mode: the signed-in user (null in the demo). */
+  /** The signed-in user (null when not signed in). */
   getUser(): LiveUser | null;
-  /** Live mode: reload from the server now. */
+  /** Reload from the server now. */
   refresh(): Promise<void>;
-  /** Live mode: failed server calls (forbidden, network...). */
+  /** Failed server calls (forbidden, network...). */
   onError(listener: (kind: "forbidden" | "network" | "server" | "unauthorized") => void): () => void;
   actions: RepositoryActions;
 }
@@ -62,7 +61,6 @@ export interface RepositoryActions {
   addPlateFeedback(kitchenId: string, date: string, dishId: string, leftover: Leftover): void;
 
   updateSettings(patch: Partial<Settings>): void;
-  resetDemo(): void;
   /** Any command from the registry by name (data entry and management). */
   exec(name: string, args: unknown[]): unknown;
 }

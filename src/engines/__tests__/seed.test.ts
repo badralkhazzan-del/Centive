@@ -25,7 +25,7 @@ describe("Seed data", () => {
     }
   });
 
-  it("starts the demo with eggs at 62% for Kopdes Sumbangsari, weeks 3-6", () => {
+  it("starts the sample region with eggs at 62% for Kopdes Sumbangsari, weeks 3-6", () => {
     const d = derive(seed());
     const c = d.windowCoverage("kd-sumbangsari", "eggs", d.windowWeeks);
     expect(Math.round(c.pct * 100)).toBe(62);
@@ -39,10 +39,10 @@ describe("Seed data", () => {
     }
   });
 
-  it("labels organizations as demo and every price as a placeholder", () => {
+  it("labels organizations as samples and every price as a placeholder", () => {
     const data = seed();
-    for (const kd of data.kopdes) expect(kd.name).toMatch(/\(demo\)$/);
-    for (const k of data.kitchens) expect(k.name).toMatch(/Demo/);
+    for (const kd of data.kopdes) expect(kd.name).toMatch(/\(sample\)$/);
+    for (const k of data.kitchens) expect(k.name).toMatch(/\(sample\)$/);
     expect(data.prices.every((p) => p.source === "PLACEHOLDER")).toBe(true);
     expect(data.prices.length).toBe(data.ingredients.length * 12);
   });

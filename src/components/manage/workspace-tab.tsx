@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/common/toast";
 import { useT } from "@/i18n";
 import { api, ApiError } from "@/lib/live-client";
-import { repo, useAppData } from "@/lib/repo";
+import { repo, useAppData, useGuest } from "@/lib/repo";
 import { Field, FormCard, Section } from "./parts";
 
 export function WorkspaceTab() {
+  const guest = useGuest();
   const { t } = useT();
   const data = useAppData();
   const notify = useToast();
@@ -60,7 +61,8 @@ export function WorkspaceTab() {
           </p>
         </FormCard>
       </Section>
-      <PasswordCard />
+      {/* Guest copies have no password. */}
+      {guest ? null : <PasswordCard />}
       <Section title={L.startOver} hint={L.startOverHint}>
         <div className="flex flex-wrap gap-2 rounded-2xl border border-danger/30 bg-danger-soft/40 p-4">
           <Button variant="outline" disabled={busy} onClick={() => reset("sample")} data-testid="reset-sample">

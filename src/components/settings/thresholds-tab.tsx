@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeftRight, ChevronDown, CircleAlert, Info, Languages, RotateCcw, Shield, Tag, TrendingUp, Users, Wallet, type LucideIcon } from "lucide-react";
+import { ArrowLeftRight, ChevronDown, CircleAlert, Info, Languages, Shield, Tag, TrendingUp, Users, Wallet, type LucideIcon } from "lucide-react";
 import type { Lang, Settings, SubstitutionSettings } from "@/types";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input, Label, Select } from "@/components/ui/input";
 import { IngredientLabel } from "@/components/common/ingredient";
 import { StatusPill } from "@/components/common/status";
-import { useToast } from "@/components/common/toast";
 import { DEFAULT_SETTINGS } from "@/data/seed";
 import { formatNumber, formatPct, formatRp } from "@/engines/format";
 import { useT } from "@/i18n";
@@ -132,7 +130,6 @@ function SupplyInput({ id, label, value, unit }: { id: string; label: string; va
 export function ThresholdsTab() {
   const { t, lang, nm } = useT();
   const d = useDerived();
-  const notify = useToast();
   const L = settingsStrings(lang);
   const S = t.settings;
   const s = d.data.settings;
@@ -143,19 +140,14 @@ export function ThresholdsTab() {
   const supplyIds = Object.keys(s.marketSupplyKgPerWeek).filter((id) => d.ingredientsById.has(id));
   const live = useLiveMode();
   const user = useLiveUser();
-  const readOnly = live && user?.role !== "admin";
-
-  const resetDemo = () => {
-    if (!window.confirm(t.common.resetConfirm)) return;
-    actions.resetDemo();
-    notify(t.common.resetDone);
-  };
+  // Not signed in: the public sample values are shown read-only.
+  const readOnly = !live || user?.role !== "admin";
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
       <h2 className="sr-only">{S.tabs.thresholds}</h2>
       <p className="flex items-start gap-2 rounded-2xl bg-primary-soft p-4 text-sm font-semibold text-primary-strong">
-        <Info className="mt-0.5 size-5 shrink-0" aria-hidden /> {readOnly ? t.manage.adminOnly : S.thresholdsHint}
+        <Info className="mt-0.5 size-5 shrink-0" aria-hidden /> {!live ? t.guest.settingsReadOnly : readOnly ? t.manage.adminOnly : S.thresholdsHint}
       </p>
       <fieldset disabled={readOnly} className="contents">
 
@@ -312,24 +304,6 @@ export function ThresholdsTab() {
             <StatusPill status={overdue > 0 ? "red" : "green"} label={overdue > 0 ? t.kopdes.payments.overdueCount(overdue) : t.status.onTime} size="sm" />
           </div>
         </SectionCard>
-
-        <SectionCard icon={Languages} title={L.general}>
-          <div className="grid gap-1.5">
-            <Label htmlFor="set-lang">{S.language}</Label>
-            <Select id="set-lang" value={lang} onChange={(e) => actions.setLang(e.target.value as Lang)} data-testid="settings-lang">
-              <option value="en">{t.common.english}</option>
-              <option value="id">{t.common.indonesian}</option>
-            </Select>
-          </div>
-          {live ? null : (
-            <div className="grid gap-2 rounded-xl border border-danger/30 bg-danger-soft/40 p-3">
-              <p className="text-sm text-foreground">{S.resetHint}</p>
-              <Button variant="outline" onClick={resetDemo} className="border-danger/40 text-danger-strong hover:bg-danger-soft" data-testid="settings-reset">
-                <RotateCcw aria-hidden /> {S.reset}
-              </Button>
-            </div>
-          )}
-        </SectionCard>
       </div>
 
       <SectionCard icon={ArrowLeftRight} title={S.substitution}>
@@ -399,6 +373,18 @@ export function ThresholdsTab() {
         </div>
       </SectionCard>
       </fieldset>
+      {/* Outside the fieldset: everyone may pick their language. */}
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <SectionCard icon={Languages} title={L.general}>
+            <div className="grid gap-1.5">
+              <Label htmlFor="set-lang">{S.language}</Label>
+              <Select id="set-lang" value={lang} onChange={(e) => actions.setLang(e.target.value as Lang)} data-testid="settings-lang">
+                <option value="en">{t.common.english}</option>
+                <option value="id">{t.common.indonesian}</option>
+              </Select>
+            </div>
+          </SectionCard>
+      </div>
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { FlaskConical, Info, LayoutGrid, LogIn, LogOut, Menu, Play, RotateCcw, Settings, Users } from "lucide-react";
+import { Building2, FlaskConical, Info, LayoutGrid, LogIn, LogOut, Menu, RotateCcw, Settings, Users } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,11 +14,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useDemo } from "@/components/demo/demo-context";
+import { useToast } from "@/components/common/toast";
 import { useT } from "@/i18n";
-import { actions, useAppData, useDerived, useLiveMode, useLiveUser } from "@/lib/repo";
+import { actions, repo, useAppData, useDerived, useLiveMode, useLiveUser } from "@/lib/repo";
 import { roleOf } from "@/lib/repo/remote";
-import { api, reloadTo } from "@/lib/live-client";
+import { api, LIVE_COOKIE, reloadTo } from "@/lib/live-client";
 import { ROLE_HOME, ROLE_NAV, roleFromPath } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/engines/format";
@@ -33,7 +33,7 @@ export function AppHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const data = useAppData();
-  const demo = useDemo();
+  const notify = useToast();
   const pathRole = roleFromPath(pathname);
   const role = pathRole ?? data.ui.role;
   const isLive = useLiveMode();
@@ -41,6 +41,7 @@ export function AppHeader() {
   const ownRole = user && user.role !== "admin" ? roleOf(user) : null;
   const roles = ownRole ? [ownRole] : ROLES;
   const canManage = isLive && user && user.role !== "farmer" && user.role !== "viewer";
+  const guest = Boolean(user?.guest);
 
   useEffect(() => {
     if (pathRole && pathRole !== data.ui.role) actions.setRole(pathRole);
@@ -56,7 +57,7 @@ export function AppHeader() {
     try {
       await api("/api/auth/logout", { method: "POST" });
     } finally {
-      document.cookie = "pt_live=; path=/; max-age=0";
+      document.cookie = `${LIVE_COOKIE}=; path=/; max-age=0`;
       reloadTo("/");
     }
   };
@@ -65,11 +66,12 @@ export function AppHeader() {
   const derived = useDerived();
   const pendingSwitch = pathRole === "kitchen" ? (derived.suggestions.get(data.ui.activeKitchenId)?.length ?? 0) : 0;
 
-  const resetDemo = () => {
-    if (window.confirm(t.common.resetConfirm)) {
-      actions.resetDemo();
-      router.push("/");
-    }
+  const resetSample = async () => {
+    if (!window.confirm(t.guest.resetConfirm)) return;
+    await api("/api/workspace", { body: { action: "reset", start: "sample" } }).catch(() => undefined);
+    await repo.refresh();
+    notify(t.guest.resetDone);
+    router.push("/explore");
   };
 
   return (
@@ -79,14 +81,11 @@ export function AppHeader() {
           <Logo compact />
         </Link>
         {isLive ? (
-          <span className="hidden max-w-64 items-center gap-1.5 truncate rounded-full bg-primary-soft px-2.5 py-1 text-xs font-semibold text-primary-strong lg:inline-flex" title={t.live.lastSync}>
-            <span className="size-2 shrink-0 rounded-full bg-ok" aria-hidden /> {t.live.liveBadge} · {data.workspace?.name} · {formatDate(data.today, lang, { weekday: true })}
+          <span className="hidden max-w-72 items-center gap-1.5 truncate rounded-full bg-primary-soft px-2.5 py-1 text-xs font-semibold text-primary-strong lg:inline-flex" title={t.live.lastSync}>
+            <span className="size-2 shrink-0 rounded-full bg-ok" aria-hidden /> {guest ? t.guest.badge : `${t.live.liveBadge} · ${data.workspace?.name ?? ""}`} ·{" "}
+            {formatDate(data.today, lang, { weekday: true })}
           </span>
-        ) : (
-          <span className="hidden rounded-full bg-muted-surface px-2.5 py-1 text-xs font-semibold text-muted lg:inline">
-            {t.common.demoClock}: {formatDate(data.today, lang, { weekday: true, year: true })}
-          </span>
-        )}
+        ) : null}
         <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
           <Link
             href="/simulation"
@@ -95,11 +94,11 @@ export function AppHeader() {
             <FlaskConical className="size-5 text-primary" aria-hidden />
             {t.common.simulationLab}
           </Link>
-          {!isLive ? (
-            <Button variant="accent" size="sm" onClick={demo.start} data-testid="play-demo" aria-label={t.common.playDemo}>
-              <Play aria-hidden />
-              <span className="hidden sm:inline">{t.common.playDemo}</span>
-              <span className="sm:hidden">{t.common.demoShort}</span>
+          {!isLive && pathname === "/" ? (
+            <Button variant="outline" size="sm" asChild className="hidden sm:inline-flex">
+              <Link href="/login" data-testid="header-sign-in">
+                <LogIn aria-hidden /> {t.live.signIn}
+              </Link>
             </Button>
           ) : null}
           <LanguageToggle />
@@ -111,7 +110,7 @@ export function AppHeader() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {user ? (
+              {user && !guest ? (
                 <>
                   <DropdownMenuLabel className="flex flex-col">
                     <span>{t.live.signedInAs(user.name)}</span>
@@ -119,6 +118,14 @@ export function AppHeader() {
                       {t.live.roleLabel[user.role]} · {data.workspace?.name}
                     </span>
                   </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                </>
+              ) : null}
+              {guest && user?.role === "admin" ? (
+                <>
+                  <DropdownMenuItem onSelect={() => router.push("/explore")} data-testid="menu-explore">
+                    <LayoutGrid aria-hidden /> {t.guest.home}
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                 </>
               ) : null}
@@ -151,19 +158,24 @@ export function AppHeader() {
                   <Users aria-hidden /> {t.live.manage}
                 </DropdownMenuItem>
               ) : null}
-              {isLive ? (
-                <DropdownMenuItem onSelect={signOut} data-testid="sign-out">
-                  <LogOut aria-hidden /> {t.live.signOut}
-                </DropdownMenuItem>
-              ) : (
+              {guest && user?.role === "admin" ? (
                 <>
-                  <DropdownMenuItem onSelect={() => router.push("/login")} data-testid="menu-sign-in">
-                    <LogIn aria-hidden /> {t.live.signIn}
+                  <DropdownMenuItem onSelect={resetSample} data-testid="menu-reset-sample">
+                    <RotateCcw aria-hidden /> {t.guest.reset}
                   </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={resetDemo} data-testid="reset-demo">
-                    <RotateCcw aria-hidden /> {t.common.resetDemo}
+                  <DropdownMenuItem onSelect={() => router.push("/signup")}>
+                    <Building2 aria-hidden /> {t.live.createWorkspace}
                   </DropdownMenuItem>
                 </>
+              ) : null}
+              {isLive ? (
+                <DropdownMenuItem onSelect={signOut} data-testid="sign-out">
+                  <LogOut aria-hidden /> {guest ? t.guest.close : t.live.signOut}
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem onSelect={() => router.push("/login")} data-testid="menu-sign-in">
+                  <LogIn aria-hidden /> {t.live.signIn}
+                </DropdownMenuItem>
               )}
             </DropdownMenuContent>
           </DropdownMenu>

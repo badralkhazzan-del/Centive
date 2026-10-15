@@ -141,7 +141,7 @@ function TraceInner() {
         </p>
         {view.live ? null : (
           <p className="text-xs text-muted">
-            {t.common.demoData} · {t.common.fictional}
+            {t.common.sampleData} · {t.common.fictional}
           </p>
         )}
       </footer>

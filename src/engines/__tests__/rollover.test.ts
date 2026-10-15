@@ -4,23 +4,23 @@ import { derive } from "../derive";
 import { regencyKpis } from "../kpis";
 import { resolveDay } from "../menu";
 import { rollForward } from "../rollover";
-import { addDays, DEMO_TODAY } from "../time";
+import { addDays, SAMPLE_DATE } from "../time";
 
 describe("rollForward (live workspaces on the real calendar)", () => {
   const data = buildSeedState();
 
   it("does nothing within the same week, except moving today", () => {
-    const next = rollForward(data, addDays(DEMO_TODAY, 3));
-    expect(next.today).toBe(addDays(DEMO_TODAY, 3));
+    const next = rollForward(data, addDays(SAMPLE_DATE, 3));
+    expect(next.today).toBe(addDays(SAMPLE_DATE, 3));
     expect(next.commitments).toEqual(data.commitments);
   });
 
   it("ignores a clock that goes backwards", () => {
-    expect(rollForward(data, addDays(DEMO_TODAY, -7))).toBe(data);
+    expect(rollForward(data, addDays(SAMPLE_DATE, -7))).toBe(data);
   });
 
   it("keeps every plan on the same calendar dates after a week passes", () => {
-    const next = rollForward(data, addDays(DEMO_TODAY, 7));
+    const next = rollForward(data, addDays(SAMPLE_DATE, 7));
     const before = derive(data);
     const after = derive(next);
     for (const kd of data.kopdes) {
@@ -36,7 +36,7 @@ describe("rollForward (live workspaces on the real calendar)", () => {
   });
 
   it("keeps the 4-week menu cycle aligned with the calendar", () => {
-    const next = rollForward(data, addDays(DEMO_TODAY, 14));
+    const next = rollForward(data, addDays(SAMPLE_DATE, 14));
     const dishes = new Map(data.dishes.map((d) => [d.id, d]));
     for (const k of data.kitchens) {
       const cycle = data.menuCycles.find((c) => c.kitchenId === k.id)!;
@@ -52,7 +52,7 @@ describe("rollForward (live workspaces on the real calendar)", () => {
   });
 
   it("drops plans that fall far into the past", () => {
-    const next = rollForward(data, addDays(DEMO_TODAY, 7 * 40));
+    const next = rollForward(data, addDays(SAMPLE_DATE, 7 * 40));
     expect(next.commitments).toEqual([]);
   });
 });

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildPrices } from "@/data/prices";
 import { commitmentBand, indexPrices, makeBand, priceBand, priceForWeek, settlementPrice, trailingAverage } from "@/engines/priceBand";
-import { DEMO_TODAY } from "@/engines/time";
+import { SAMPLE_DATE } from "@/engines/time";
 
 const idx = indexPrices(buildPrices());
 
@@ -22,20 +22,20 @@ describe("Price Band", () => {
   });
 
   it("anchors the eggs commitment band on the 4-week average (Rp 26,600 to 30,800)", () => {
-    expect(commitmentBand(idx, "eggs", DEMO_TODAY)).toEqual({ ref: 28000, floor: 26600, ceiling: 30800 });
+    expect(commitmentBand(idx, "eggs", SAMPLE_DATE)).toEqual({ ref: 28000, floor: 26600, ceiling: 30800 });
   });
 
   it("uses the 4 weeks before the week as reference", () => {
-    expect(trailingAverage(idx, "chicken", DEMO_TODAY, 3)).toBeCloseTo((35000 + 35000 + 35500 + 36500) / 4, 6);
-    const b = priceBand(idx, "chicken", DEMO_TODAY, 3);
+    expect(trailingAverage(idx, "chicken", SAMPLE_DATE, 3)).toBeCloseTo((35000 + 35000 + 35500 + 36500) / 4, 6);
+    const b = priceBand(idx, "chicken", SAMPLE_DATE, 3);
     expect(b.marketPrice).toBe(42000);
     expect(b.marketPrice).toBeGreaterThan(b.ceiling);
     expect(b.settlement).toBe(b.ceiling);
   });
 
   it("carries the last known price forward beyond the data", () => {
-    expect(priceForWeek(idx, "chicken", DEMO_TODAY, 8)).toBe(priceForWeek(idx, "chicken", DEMO_TODAY, 4));
-    expect(priceForWeek(idx, "chicken", DEMO_TODAY, -20)).toBe(priceForWeek(idx, "chicken", DEMO_TODAY, -7));
-    expect(priceForWeek(idx, "unknown", DEMO_TODAY, 1)).toBe(0);
+    expect(priceForWeek(idx, "chicken", SAMPLE_DATE, 8)).toBe(priceForWeek(idx, "chicken", SAMPLE_DATE, 4));
+    expect(priceForWeek(idx, "chicken", SAMPLE_DATE, -20)).toBe(priceForWeek(idx, "chicken", SAMPLE_DATE, -7));
+    expect(priceForWeek(idx, "unknown", SAMPLE_DATE, 1)).toBe(0);
   });
 });

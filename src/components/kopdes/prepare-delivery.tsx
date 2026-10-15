@@ -83,7 +83,7 @@ export function PrepareDelivery() {
     notify(L.created(batch.id));
   };
 
-  // ?label=CODE shows the label of an existing batch (used by Demo Mode and shared links).
+  // ?label=CODE shows the label of an existing batch (used by shared links).
   const shown = created ?? d.data.batches.find((b) => b.id === labelCode && b.kopdesId === kd.id) ?? null;
 
   const resetForm = () => {

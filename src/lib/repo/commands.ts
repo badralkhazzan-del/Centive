@@ -18,12 +18,12 @@ import { allocate, heldByFarmer, type MatchCandidate } from "@/engines/matching"
 import { commitmentBand } from "@/engines/priceBand";
 import { batchCodeFromSeq } from "@/engines/rng";
 import { suggestionKey, toOverride } from "@/engines/substitution";
-import { addDays, weekOfDate } from "@/engines/time";
+import { weekOfDate } from "@/engines/time";
 
 // Pure state transitions. Every command returns a new AppData; the repository
 // persists it. Approvals, rejections and overrides are written to the audit log.
 
-export type Now = string; // ISO timestamp on the demo date
+export type Now = string; // ISO timestamp of the change
 
 function log(data: AppData, now: Now, actorRole: AuditLog["actorRole"], action: string, details: string): AuditLog[] {
   return [{ id: `log-${data.seq}-${data.auditLog.length + 1}`, timestamp: now, actorRole, action, details }, ...data.auditLog];
@@ -34,7 +34,7 @@ function nextSeq(data: AppData) {
 }
 
 export function shortKopdesName(name: string) {
-  return name.replace("Merah Putih ", "").replace(" (demo)", "");
+  return name.replace("Merah Putih ", "").replace(" (sample)", "");
 }
 
 export function honorific(f: Pick<Farmer, "gender">) {
@@ -667,8 +667,4 @@ function describeSettingsChange(before: Settings, after: Settings): string[] {
     if (before.marketSupplyKgPerWeek[id] !== kg) out.push(`market supply estimate ${id} ${before.marketSupplyKgPerWeek[id] ?? 0} → ${kg} kg/week`);
   }
   return out;
-}
-
-export function demoTomorrow(data: AppData) {
-  return addDays(data.today, 1);
 }

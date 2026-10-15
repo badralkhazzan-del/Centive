@@ -6,7 +6,6 @@ import { AppFooter } from "@/components/layout/footer";
 import { AppProviders } from "@/components/layout/providers";
 import { OfflineBanner } from "@/components/layout/offline-banner";
 import { BOOT_SCRIPT, InlineScript } from "@/components/layout/inline-script";
-import { DemoProvider } from "@/components/demo/demo-provider";
 import { SkipLink } from "@/components/layout/skip-link";
 import { LiveGate } from "@/components/layout/live-gate";
 import { en } from "@/i18n/en";
@@ -42,15 +41,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body className="flex min-h-dvh flex-col font-sans antialiased">
         <AppProviders>
-          <DemoProvider>
-            <SkipLink />
-            <OfflineBanner />
-            <AppHeader />
-            <main id="main" tabIndex={-1} className="flex-1 focus-visible:outline-none">
-              <LiveGate>{children}</LiveGate>
-            </main>
-            <AppFooter />
-          </DemoProvider>
+          <SkipLink />
+          <OfflineBanner />
+          <AppHeader />
+          <main id="main" tabIndex={-1} className="flex-1 focus-visible:outline-none">
+            <LiveGate>{children}</LiveGate>
+          </main>
+          <AppFooter />
         </AppProviders>
       </body>
     </html>

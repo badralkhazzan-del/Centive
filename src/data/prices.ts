@@ -1,8 +1,8 @@
 import type { PricePoint } from "@/types";
-import { DEMO_TODAY, weekStart } from "@/engines/time";
+import { SAMPLE_DATE, weekStart } from "@/engines/time";
 
 // 12 weeks of weekly market prices per ingredient: 8 weeks of history (weeks -7..0,
-// where week 0 is the demo's current week) and 4 weeks ahead (weeks 1..4).
+// where week 0 is the current week) and 4 weeks ahead (weeks 1..4).
 //
 // EVERY VALUE IS A PLACEHOLDER (source: "PLACEHOLDER"). Replace them with real
 // exports from PIHPS, Bank Indonesia (https://www.bi.go.id/hargapangan): choose
@@ -34,7 +34,7 @@ export const PRICE_TABLE: Record<string, number[]> = {
   cooking_oil: [17500, 17500, 17500, 17500, 17500, 17500, 17500, 17500, 17500, 17500, 17500, 17500],
 };
 
-export function buildPrices(today = DEMO_TODAY): PricePoint[] {
+export function buildPrices(today = SAMPLE_DATE): PricePoint[] {
   const out: PricePoint[] = [];
   for (const [ingredientId, values] of Object.entries(PRICE_TABLE)) {
     PRICE_WEEKS.forEach((w, i) => {

@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Building2, ChartColumn, LogIn, Play, Shuffle, Store } from "lucide-react";
+import { ArrowRight, Building2, ChartColumn, LogIn, Shuffle, Store } from "lucide-react";
 import { LogoMark } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
-import { useDemo } from "@/components/demo/demo-context";
+import { OpenPlatformButton } from "@/components/guest/open-platform";
 import { useT } from "@/i18n";
 import { useLiveMode, useLiveUser } from "@/lib/repo";
 import { roleOf } from "@/lib/repo/remote";
@@ -15,11 +15,10 @@ import { StatCards } from "./stat-cards";
 
 export function LandingPage() {
   const { t } = useT();
-  const demo = useDemo();
   const live = useLiveMode();
   const user = useLiveUser();
   const ownRole = user ? roleOf(user) : null;
-  const home = ownRole ? ROLE_HOME[ownRole] : "/manage";
+  const home = user?.guest && user.role === "admin" ? "/explore" : ownRole ? ROLE_HOME[ownRole] : "/manage";
   const pillars = [
     { key: "forecast", Icon: ChartColumn, accent: false, ...t.landing.pillars.forecast },
     { key: "board", Icon: Store, accent: false, ...t.landing.pillars.board },
@@ -48,22 +47,21 @@ export function LandingPage() {
             </div>
             <p className="max-w-xl text-lg text-foreground/90">{t.landing.heroTitle}</p>
             <p className="max-w-xl text-base text-muted">{t.landing.heroBody}</p>
-            <div className="flex flex-wrap gap-3 pt-1">
+            <div className="hide-in-poster flex flex-wrap items-start gap-3 pt-1">
               {live ? (
                 <Button size="lg" asChild data-testid="hero-open-workspace">
                   <Link href={home}>
-                    <ArrowRight aria-hidden /> {t.live.openWorkspace}
+                    <ArrowRight aria-hidden /> {user?.guest ? t.guest.home : t.live.openWorkspace}
                   </Link>
                 </Button>
               ) : (
-                <Button size="lg" variant="accent" onClick={demo.start} data-testid="hero-play-demo" className="hide-in-poster">
-                  <Play aria-hidden /> {t.common.playDemo}
-                </Button>
+                <OpenPlatformButton testId="hero-open-platform" />
               )}
               <Button size="lg" variant="outline" asChild>
                 <a href="#roles">{t.landing.chooseRole}</a>
               </Button>
             </div>
+            {!live ? <p className="hide-in-poster max-w-xl text-sm text-muted">{t.guest.openHint}</p> : null}
           </div>
           <div id="roles" className="flex scroll-mt-24 flex-col gap-3">
             <div>

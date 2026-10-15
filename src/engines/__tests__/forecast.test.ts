@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { aggregateForKopdes, forecastKitchenWeek, mape, tableFrom, cellOf } from "@/engines/forecast";
 import { derive } from "@/engines/derive";
-import { DEMO_TODAY, schoolDayDate } from "@/engines/time";
+import { SAMPLE_DATE, schoolDayDate } from "@/engines/time";
 import { mini, seed } from "./fixtures";
 
 function ctxFor(kitchenPatch = {}) {
   const { ingredient, dish, kitchen, cycle } = mini();
   return {
-    today: DEMO_TODAY,
+    today: SAMPLE_DATE,
     kitchen: { ...kitchen, ...kitchenPatch },
     cycle,
     dishesById: new Map([[dish.id, dish]]),
@@ -30,7 +30,7 @@ describe("Menu-to-Field Forecast", () => {
   });
 
   it("gives zero demand on a holiday and less in a week with one", () => {
-    const holiday = schoolDayDate(DEMO_TODAY, 1, 2);
+    const holiday = schoolDayDate(SAMPLE_DATE, 1, 2);
     const full = forecastKitchenWeek(ctxFor(), 1)[0].kgExpected;
     const withHoliday = forecastKitchenWeek(
       ctxFor({ schoolCalendar: { operatingWeekdays: [1, 2, 3, 4, 5], holidays: [{ date: holiday, nameEn: "h", nameId: "h" }] } }),
@@ -40,14 +40,14 @@ describe("Menu-to-Field Forecast", () => {
   });
 
   it("returns no demand for a full holiday week", () => {
-    const holidays = [0, 1, 2, 3, 4].map((d) => ({ date: schoolDayDate(DEMO_TODAY, 2, d), nameEn: "h", nameId: "h" }));
+    const holidays = [0, 1, 2, 3, 4].map((d) => ({ date: schoolDayDate(SAMPLE_DATE, 2, d), nameEn: "h", nameId: "h" }));
     const out = forecastKitchenWeek(ctxFor({ schoolCalendar: { operatingWeekdays: [1, 2, 3, 4, 5], holidays } }), 2);
     expect(out).toHaveLength(0);
   });
 
   it("respects the seed school calendar (Christmas, Friday 25 Dec 2026, week 8)", () => {
     const d = derive(seed());
-    expect(schoolDayDate(DEMO_TODAY, 8, 4)).toBe("2026-12-25");
+    expect(schoolDayDate(SAMPLE_DATE, 8, 4)).toBe("2026-12-25");
     const k = "k-sumbang-1";
     const t = d.kitchenTables.get(k)!;
     // Friday of cycle week 4 serves chicken; the holiday removes one of two chicken days.

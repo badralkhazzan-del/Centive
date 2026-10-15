@@ -2,7 +2,7 @@ import type { Dish } from "@/types";
 
 // Typical MBG-style dishes. Grams are edible raw grams per portion:
 // small = PAUD to SD grade 3, large = SD grade 4 and above.
-// Demo values, chosen so every day of the menu cycle stays within the
+// Sample values, chosen so every day of the menu cycle stays within the
 // Rp8,000 / Rp10,000 raw-food budget at seed prices (checked by a unit test).
 
 const g = (small: number, large: number) => ({ small, large });

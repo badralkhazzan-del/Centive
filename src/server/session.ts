@@ -12,10 +12,10 @@ export async function sessionUser(req: NextRequest): Promise<SessionUser | null>
   return user && user.workspaceId === token.workspaceId ? user : null;
 }
 
-export function setSession(res: NextResponse, user: SessionUser) {
+export function setSession(res: NextResponse, user: SessionUser, days = SESSION_DAYS) {
   const secure = process.env.NODE_ENV === "production";
-  const maxAge = SESSION_DAYS * 86_400;
-  res.cookies.set(SESSION_COOKIE, createSessionToken(user.id, user.workspaceId), { httpOnly: true, sameSite: "lax", secure, path: "/", maxAge });
+  const maxAge = days * 86_400;
+  res.cookies.set(SESSION_COOKIE, createSessionToken(user.id, user.workspaceId, days), { httpOnly: true, sameSite: "lax", secure, path: "/", maxAge });
   res.cookies.set(MODE_COOKIE, "1", { httpOnly: false, sameSite: "lax", secure, path: "/", maxAge });
   return res;
 }
@@ -37,6 +37,7 @@ const STATUS: Record<string, number> = {
   invalid: 400,
   login_taken: 409,
   bad_credentials: 401,
+  not_guest: 403,
   rate_limited: 429,
   invite_expired: 410,
 };
@@ -52,6 +53,11 @@ export function handle(fn: () => Promise<Response>) {
 
 export function unauthorized() {
   return json({ error: "unauthorized" }, 401);
+}
+
+/** The visitor's address, for rate limits (Vercel sets x-forwarded-for). */
+export function clientIp(req: NextRequest): string {
+  return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "local";
 }
 
 /** Reject cross-site form posts: the Origin of a state-changing request must match. */

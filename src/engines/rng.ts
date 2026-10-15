@@ -45,7 +45,7 @@ export function batchCode(rng: Rng): string {
   return `PT-${s}`;
 }
 
-/** Deterministic code from a counter, used for codes created during the demo. */
+/** Deterministic code from a counter, used for codes created in tests and the sample region. */
 export function batchCodeFromSeq(seq: number): string {
   return batchCode(mulberry32(seq * 7919 + 17));
 }

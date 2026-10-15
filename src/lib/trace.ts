@@ -2,7 +2,7 @@ import type { Batch, Farmer } from "@/types";
 
 // The QR label links to /trace/<code>?d=<payload>. The payload carries the public
 // batch details (first names and village only), so a phone that scans the label
-// can show the trace page even though the demo data lives in another browser.
+// can show the trace page even on a phone that is not signed in.
 
 export interface TracePayload {
   i: string; // ingredient id

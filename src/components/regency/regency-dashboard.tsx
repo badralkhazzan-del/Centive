@@ -70,7 +70,7 @@ function DashboardInner() {
 
   const nodes: MapNode[] = [
     ...d.data.kopdes.map((x) => ({ id: x.id, name: shortKopdesName(x.name), lat: x.lat, lng: x.lng, kind: "kopdes" as const })),
-    ...d.data.kitchens.map((x) => ({ id: x.id, name: x.name.replace("SPPG Demo ", "SPPG "), lat: x.lat, lng: x.lng, kind: "kitchen" as const })),
+    ...d.data.kitchens.map((x) => ({ id: x.id, name: x.name.replace(" (sample)", ""), lat: x.lat, lng: x.lng, kind: "kitchen" as const })),
   ];
   const links: (MapLink & { pct: number })[] = d.data.kitchens.flatMap((kt) =>
     kt.linkedKopdesIds.map((kdId) => {
@@ -144,7 +144,7 @@ function DashboardInner() {
     <>
       <div className="print:hidden">
         <PageHeader
-          eyebrow={real ? `${t.common.readOnly} · ${d.data.workspace!.region || d.data.workspace!.name}` : `${t.common.readOnly} · Kabupaten Banyumas (${t.common.demoData.toLowerCase()})`}
+          eyebrow={real ? `${t.common.readOnly} · ${d.data.workspace!.region || d.data.workspace!.name}` : `${t.common.readOnly} · Kabupaten Banyumas (${t.common.sampleData.toLowerCase()})`}
           title={t.regency.title}
           subtitle={real ? t.regency.liveSubtitle : t.regency.subtitle}
           actions={
@@ -285,7 +285,7 @@ function PrintReport({ k, links }: { k: RegencyKpis; links: (MapLink & { pct: nu
     <section className="print-only print-report">
       <h1 style={{ fontSize: "18pt", fontWeight: 800, color: "#17573a" }}>{real ? t.regency.liveReportTitle(d.data.workspace!.name) : t.regency.reportTitle}</h1>
       <p style={{ marginBottom: "10pt" }}>
-        {t.common.demoClock}: {formatDate(d.today, lang, { weekday: true, year: true })} · {t.common.tagline}
+        {t.common.dateLabel}: {formatDate(d.today, lang, { weekday: true, year: true })} · {t.common.tagline}
       </p>
       <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "12pt" }}>
         <tbody>

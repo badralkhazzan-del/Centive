@@ -3,7 +3,7 @@
 import { useHydrated } from "@/components/layout/providers";
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** Shows a loading skeleton until the saved demo data is loaded from this browser. */
+/** Shows a loading skeleton until the workspace data has loaded. */
 export function HydrationGate({ children, rows = 3 }: { children: React.ReactNode; rows?: number }) {
   const hydrated = useHydrated();
   if (!hydrated) {

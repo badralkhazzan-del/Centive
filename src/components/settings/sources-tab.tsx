@@ -20,7 +20,7 @@ import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/
 import { IngredientLabel } from "@/components/common/ingredient";
 import { factDate, FactSource } from "@/components/common/fact-source";
 import { FACTS, getFact } from "@/content/facts";
-import { DEMO_CALENDAR } from "@/data/places";
+import { SAMPLE_CALENDAR } from "@/data/places";
 import { formatDate, formatNumber, formatPct } from "@/engines/format";
 import { useT } from "@/i18n";
 import { useAppData } from "@/lib/repo";
@@ -28,7 +28,7 @@ import { cn } from "@/lib/utils";
 import { IconTile, ScrollTable, TD, TH } from "./parts";
 import { settingsStrings } from "./strings";
 
-type StatusKind = "verified" | "toVerify" | "placeholder" | "fictional" | "demo";
+type StatusKind = "verified" | "toVerify" | "placeholder" | "fictional" | "live";
 
 /** Status is always icon + label, never color alone. */
 export function SourceStatus({ kind, label }: { kind: StatusKind; label: string }) {
@@ -37,7 +37,7 @@ export function SourceStatus({ kind, label }: { kind: StatusKind; label: string 
     toVerify: { variant: "yellow", Icon: TriangleAlert },
     placeholder: { variant: "accent", Icon: FileWarning },
     fictional: { variant: "muted", Icon: CircleDashed },
-    demo: { variant: "outline", Icon: CalendarDays },
+    live: { variant: "outline", Icon: CalendarDays },
   } as const;
   const { variant, Icon } = map[kind];
   return (
@@ -88,7 +88,7 @@ export function SourcesTab() {
   const pihps = data.prices.filter((p) => p.source === "PIHPS").length;
   const placeholders = data.prices.length - pihps;
   const budget = getFact("raw-food-budget");
-  const holidayText = DEMO_CALENDAR.holidays.map((h) => `${formatDate(h.date, lang, { year: true })}, ${nm(h)}`).join("; ");
+  const holidayText = SAMPLE_CALENDAR.holidays.map((h) => `${formatDate(h.date, lang, { year: true })}, ${nm(h)}`).join("; ");
 
   const counts = (ok: number, open: number) => (
     <span className="flex flex-wrap gap-1.5">
@@ -151,14 +151,14 @@ export function SourcesTab() {
       icon: Users,
       name: S.datasets.people,
       source: <span>{real ? L.peopleSourceLive : L.peopleSource}</span>,
-      status: real ? <SourceStatus kind="demo" label={t.live.liveBadge} /> : <SourceStatus kind="fictional" label={S.fictional} />,
+      status: real ? <SourceStatus kind="live" label={t.live.liveBadge} /> : <SourceStatus kind="fictional" label={S.fictional} />,
     },
     {
       key: "calendar",
       icon: CalendarDays,
       name: S.datasets.calendar,
       source: <span>{real ? L.calendarSourceLive : L.calendarSource(holidayText)}</span>,
-      status: <SourceStatus kind="demo" label={real ? t.live.liveBadge : t.common.demoData} />,
+      status: <SourceStatus kind="live" label={real ? t.live.liveBadge : t.common.sampleData} />,
     },
     {
       key: "budget",

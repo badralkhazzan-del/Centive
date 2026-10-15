@@ -5,18 +5,14 @@ import type { AppData } from "@/types";
 import { derive, type Derived } from "@/engines/derive";
 import { buildSeedState } from "@/data/seed";
 import { isLiveBrowser } from "@/lib/live-client";
-import { createLocalRepository } from "./local";
 import { createRemoteRepository } from "./remote";
 import type { Repository } from "./types";
 
-// Signed-in browsers use their live workspace on the server; everyone else gets the
-// fixed-date demo stored in this browser.
-export const repo: Repository = isLiveBrowser() ? createRemoteRepository() : createLocalRepository();
+// All workspace data lives on the server. A browser that is not signed in holds only
+// a read-only copy of the sample region, used by public pages (trace labels, sources).
+export const repo: Repository = createRemoteRepository();
 export const actions = repo.actions;
 
-// Load the saved demo data as early as possible on the client. Components read the
-// store through useSyncExternalStore, which renders the server snapshot during
-// hydration, so this does not cause hydration mismatches.
 if (typeof window !== "undefined") repo.hydrate();
 
 const serverSnapshot = buildSeedState();
@@ -43,10 +39,10 @@ export function useDerived(): Derived {
 
 export type { LiveUser, Repository } from "./types";
 
-/** True when this browser uses a live (server) workspace. */
-export const isLive = repo.mode === "live";
+/** True when this browser is signed in to a workspace (an account or a guest copy). */
+export const isLive = isLiveBrowser();
 
-/** The signed-in live user (null in the demo or before the first load). */
+/** The signed-in user (null when not signed in or before the first load). */
 export function useLiveUser() {
   return useSyncExternalStore(repo.subscribe, repo.getUser, () => null);
 }
@@ -54,9 +50,14 @@ export function useLiveUser() {
 const noSubscribe = () => () => undefined;
 
 /**
- * Live mode for rendering: false during server rendering and hydration (pages are
- * prerendered as the demo), then the real value. Use this instead of `isLive` in JSX.
+ * Signed in, for rendering: false during server rendering and hydration, then the
+ * real value. Use this instead of `isLive` in JSX.
  */
 export function useLiveMode(): boolean {
   return useSyncExternalStore(noSubscribe, () => isLive, () => false);
+}
+
+/** Signed in to a guest copy of the sample region (no account). */
+export function useGuest(): boolean {
+  return Boolean(useLiveUser()?.guest);
 }

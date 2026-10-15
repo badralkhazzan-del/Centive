@@ -1,10 +1,11 @@
 // Calendar helpers. All dates are ISO strings (yyyy-mm-dd) handled in UTC so the
-// demo behaves the same in every time zone.
+// app behaves the same in every time zone.
 //
 // Week numbering: week 0 is the week that contains `today`. Planning weeks 1..8
 // are the eight school weeks ahead. Negative weeks are history.
 
-export const DEMO_TODAY = "2026-10-26"; // Monday
+/** Reference date of the sample region for tests and server prerendering (a Monday). Live data uses the real date. */
+export const SAMPLE_DATE = "2026-10-26";
 
 const DAY_MS = 86_400_000;
 
