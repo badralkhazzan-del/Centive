@@ -38,28 +38,28 @@ test("guest: open the platform, send offers, answer on a phone, see it live", as
   await expect(laptop.getByTestId("phone-card")).toBeVisible();
   await expect(laptop.getByTestId("sample-banner")).toBeVisible();
 
-  // Kopdes: eggs are short; send offers.
-  await laptop.goto("/kopdes");
-  const eggs = laptop.getByTestId("board-card-eggs");
-  await expect(eggs).toHaveAttribute("data-coverage", "62");
-  await laptop.getByTestId("send-offers-eggs").click();
-  await expect(eggs).toContainText(/Offered|Ditawarkan/);
-
-  // Pick a farmer who just got an egg offer and take the phone link from the hub.
-  await expect.poll(async () => Boolean(eggOffer((await (await laptop.request.get("/api/data")).json()) as Data))).toBe(true);
-  const farmerId = eggOffer((await (await laptop.request.get("/api/data")).json()) as Data)!.farmerId;
-  await laptop.goto("/explore");
-  await laptop.selectOption("#phone-farmer", farmerId);
+  // Scan first: the default farmer has no offer yet, and both screens say so.
+  await expect(laptop.getByTestId("phone-waiting")).toBeVisible();
   await expect(laptop.getByTestId("phone-qr")).toBeVisible();
   const phoneUrl = (await laptop.getByTestId("phone-url").textContent())!;
   expect(phoneUrl).toContain("/phone?t=");
-
-  // The phone opens the farmer's inbox of the same copy and accepts.
   const phoneCtx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true });
   const phone = await phoneCtx.newPage();
   const phoneErrors = watchErrors(phone);
   await phone.goto(phoneUrl);
   await phone.waitForURL(/\/farmer$/);
+  await expect(phone.getByTestId("waiting-offer")).toBeVisible();
+
+  // Kopdes on the laptop: eggs are short; send offers.
+  await laptop.goto("/kopdes");
+  const eggs = laptop.getByTestId("board-card-eggs");
+  await expect(eggs).toHaveAttribute("data-coverage", "62");
+  await laptop.getByTestId("send-offers-eggs").click();
+  await expect(eggs).toContainText(/Offered|Ditawarkan/);
+  await expect.poll(async () => eggOffer((await (await laptop.request.get("/api/data")).json()) as Data)?.farmerId).toBeTruthy();
+
+  // The offer reaches the open phone without a reload, and the farmer accepts.
+  await expect(phone.getByTestId("reply-1").last()).toBeVisible({ timeout: 15_000 });
   await expect(phone.getByTestId("farmer-phone")).toContainText("telur");
   await phone.getByTestId("reply-1").last().click();
   await expect(phone.getByTestId("farmer-phone")).toContainText(/Terima kasih|Tercatat/);

@@ -225,6 +225,10 @@ function ChatPhone({ messages, kopdesName }: { messages: ChatMessage[]; kopdesNa
                 </button>
               ))}
             </div>
+          ) : messages.length > 0 ? (
+            <p className="rounded-xl bg-white/70 px-3 py-2 text-sm text-[#5b6b63]" role="status" data-testid="waiting-offer">
+              {t.farmer.waitingOffer}
+            </p>
           ) : null}
           <div className="flex items-center gap-2">
             <div className="flex min-h-11 flex-1 items-center rounded-full bg-white px-4 text-sm text-[#5b6b63]">{t.farmer.replyHint}</div>

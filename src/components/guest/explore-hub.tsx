@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Building2, Copy, RotateCcw, Smartphone, Sparkles } from "lucide-react";
+import { ArrowRight, Building2, CircleCheck, Clock, Copy, RotateCcw, Smartphone, Sparkles } from "lucide-react";
 import { RoleCards } from "@/components/landing/role-cards";
 import { PageContainer, PageHeader } from "@/components/layout/page";
 import { useToast } from "@/components/common/toast";
@@ -132,6 +132,8 @@ function PhoneCard() {
   const [links, setLinks] = useState<Record<string, string>>({});
   const [failed, setFailed] = useState(false);
   const url = links[farmerId];
+  const farmer = data.farmers.find((f) => f.id === farmerId);
+  const waiting = data.chat.some((m) => m.farmerId === farmerId && m.buttons && !m.answered);
 
   useEffect(() => {
     if (!farmerId || links[farmerId]) return;
@@ -165,6 +167,16 @@ function PhoneCard() {
         <CardDescription>{G.phoneBody}</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
+        <ol className="grid gap-1.5 text-sm">
+          {G.phoneSteps.map((step, i) => (
+            <li key={step} className="flex gap-2">
+              <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary-soft text-xs font-bold text-primary-strong" aria-hidden>
+                {i + 1}
+              </span>
+              <span>{step}</span>
+            </li>
+          ))}
+        </ol>
         <div className="grid gap-1.5">
           <Label htmlFor="phone-farmer">{G.phoneFarmer}</Label>
           <Select
@@ -182,6 +194,22 @@ function PhoneCard() {
             ))}
           </Select>
         </div>
+        {farmer ? (
+          waiting ? (
+            <p className="flex items-start gap-2 rounded-xl bg-ok-soft px-3 py-2 text-sm font-semibold text-ok-strong" role="status" data-testid="phone-ready">
+              <CircleCheck className="mt-0.5 size-4 shrink-0" aria-hidden /> {G.phoneReady(farmer.displayName)}
+            </p>
+          ) : (
+            <div className="grid gap-2 rounded-xl bg-warn-soft px-3 py-2 text-sm text-warn-strong" role="status" data-testid="phone-waiting">
+              <p className="flex items-start gap-2 font-semibold">
+                <Clock className="mt-0.5 size-4 shrink-0" aria-hidden /> {G.phoneWaiting(farmer.displayName)}
+              </p>
+              <Link href="/kopdes" className="inline-flex min-h-11 items-center gap-1 font-bold underline underline-offset-4">
+                {G.phoneSendOffers} <ArrowRight className="size-4" aria-hidden />
+              </Link>
+            </div>
+          )
+        ) : null}
         <div className="mx-auto flex size-52 items-center justify-center rounded-2xl border border-border bg-white p-3">
           {url ? (
             <QRCodeSVG value={url} size={180} level="M" title={G.phoneTitle} data-testid="phone-qr" />
