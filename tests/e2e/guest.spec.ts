@@ -33,6 +33,9 @@ test("guest: open the platform, send offers, answer on a phone, see it live", as
   // The landing page has no demo left, and one click opens the platform.
   await laptop.goto("/");
   await expect(laptop.locator("body")).not.toContainText(/\bdemo\b/i);
+  // The "How it works" diagram says in words what its two kinds of arrow mean.
+  await expect(laptop.getByTestId("loop-legend")).toContainText(/Every week/);
+  await expect(laptop.getByTestId("loop-legend")).toContainText(/Only when needed/);
   await laptop.getByTestId("hero-open-platform").click();
   await laptop.waitForURL(/\/explore/);
   await expect(laptop.getByTestId("phone-card")).toBeVisible();

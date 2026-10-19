@@ -4,11 +4,16 @@ import { ChartColumn, ClipboardList, MessageCircle, QrCode, Shuffle, Sprout, Sto
 import { useT } from "@/i18n";
 
 // "How it works": the planning loop. Pure SVG so it can be exported for the poster.
-// Ring: Menu -> Forecast -> Kopdes -> Farmers -> Delivery & QR -> Feedback -> Menu.
-// Branch: Kopdes -> Menu Switch -> Menu (turmeric).
+// Ring (green, solid, numbered 1 to 6, every week): Menu -> Forecast -> Kopdes -> Farmers ->
+// Delivery & QR -> Feedback -> Menu.
+// Detour (turmeric, dashed, only when supply is short or a price spikes): Kopdes -> Menu Switch -> Menu.
+// Words on the dashed arrows, an "only if needed" tag and a legend under the ring (plain page text,
+// so it stays readable on phones) say what the two kinds of arrow mean.
 
 interface NodeSpec {
   key: "menu" | "forecast" | "kopdes" | "farmers" | "delivery" | "feedback" | "switch";
+  /** Position in the weekly ring (1 to 6); the Menu Switch is a detour and has none. */
+  step?: number;
   x: number;
   y: number;
   Icon: LucideIcon;
@@ -18,12 +23,12 @@ const W = 186;
 const H = 74;
 
 const NODES: NodeSpec[] = [
-  { key: "menu", x: 150, y: 110, Icon: ClipboardList },
-  { key: "forecast", x: 400, y: 66, Icon: ChartColumn },
-  { key: "kopdes", x: 650, y: 110, Icon: Store },
-  { key: "farmers", x: 650, y: 330, Icon: Sprout },
-  { key: "delivery", x: 400, y: 374, Icon: QrCode },
-  { key: "feedback", x: 150, y: 330, Icon: MessageCircle },
+  { key: "menu", step: 1, x: 150, y: 110, Icon: ClipboardList },
+  { key: "forecast", step: 2, x: 400, y: 66, Icon: ChartColumn },
+  { key: "kopdes", step: 3, x: 650, y: 110, Icon: Store },
+  { key: "farmers", step: 4, x: 650, y: 330, Icon: Sprout },
+  { key: "delivery", step: 5, x: 400, y: 374, Icon: QrCode },
+  { key: "feedback", step: 6, x: 150, y: 330, Icon: MessageCircle },
   { key: "switch", x: 400, y: 220, Icon: Shuffle },
 ];
 
@@ -38,9 +43,13 @@ const RING = [
 
 const BRANCH = ["M606 148 Q 560 206 496 216", "M304 216 Q 240 206 194 148"];
 
+/** Text with a paper-colored halo, so it stays readable where it crosses the background rings. */
+const HALO = { stroke: "#ffffff", strokeWidth: 5, paintOrder: "stroke", strokeLinejoin: "round" } as const;
+
 export function LoopDiagram() {
   const { t } = useT();
   const L = t.landing.loop;
+  const pillW = Math.max(124, L.onlyIfNeeded.length * 9 + 32);
   const label: Record<NodeSpec["key"], [string, string]> = {
     menu: [L.menu, L.menuSub],
     forecast: [L.forecast, L.forecastSub],
@@ -57,7 +66,7 @@ export function LoopDiagram() {
         viewBox="0 0 800 444"
         className="h-auto w-full"
         role="img"
-        aria-label={`${L.menu} → ${L.forecast} → ${L.kopdes} → ${L.farmers} → ${L.delivery} → ${L.feedback} → ${L.menu}. ${L.switch}: ${L.kopdes} → ${L.menu}.`}
+        aria-label={`${L.legendWeekly}: ${L.menu} → ${L.forecast} → ${L.kopdes} → ${L.farmers} → ${L.delivery} → ${L.feedback} → ${L.menu}. ${L.legendDetour}: ${L.kopdes} → ${L.switch} → ${L.menu}. ${L.legendDetourDetail}`}
         fontFamily="var(--font-jakarta), system-ui, sans-serif"
       >
         <defs>
@@ -83,6 +92,26 @@ export function LoopDiagram() {
           <path key={d} d={d} fill="none" stroke="#c98a0c" strokeWidth="3" strokeDasharray="7 6" markerEnd="url(#pt-arrow-accent)" />
         ))}
 
+        {/* what the two dashed arrows mean, written next to them */}
+        <g fontSize="14" fontWeight="700" fill="#8a5a00" aria-hidden {...HALO}>
+          <text x="504" y="240">{L.switchTrigger[0]}</text>
+          <text x="504" y="257">{L.switchTrigger[1]}</text>
+          <text x="296" y="240" textAnchor="end">{L.switchReturn[0]}</text>
+          <text x="296" y="257" textAnchor="end">{L.switchReturn[1]}</text>
+        </g>
+        <g fontSize="14" fontWeight="700" fill="#8a5a00">
+          <text x="504" y="240">{L.switchTrigger[0]}</text>
+          <text x="504" y="257">{L.switchTrigger[1]}</text>
+          <text x="296" y="240" textAnchor="end">{L.switchReturn[0]}</text>
+          <text x="296" y="257" textAnchor="end">{L.switchReturn[1]}</text>
+        </g>
+        <g transform="translate(400 164)">
+          <rect x={-pillW / 2} y="-13" width={pillW} height="26" rx="13" fill="#e3a21a" />
+          <text textAnchor="middle" y="5" fontSize="12" fontWeight="800" fill="#1e2a24" letterSpacing="0.8">
+            {L.onlyIfNeeded}
+          </text>
+        </g>
+
         {NODES.map((n) => {
           const isSwitch = n.key === "switch";
           const [title, sub] = label[n.key];
@@ -99,6 +128,14 @@ export function LoopDiagram() {
               {isSwitch ? <rect width={W} height={H} rx="18" fill="none" stroke="#e3a21a" strokeWidth="6" className="loop-pulse" opacity="0.35" /> : null}
               <circle cx="31" cy={H / 2} r="19" fill={isSwitch ? "#e3a21a" : "#e3f0e8"} />
               <n.Icon x={19} y={H / 2 - 12} width={24} height={24} color={isSwitch ? "#1e2a24" : "#1f6f4a"} strokeWidth={2.2} aria-hidden />
+              {n.step ? (
+                <g>
+                  <circle cx="14" cy="15" r="12" fill="#1f6f4a" stroke="#ffffff" strokeWidth="2.5" />
+                  <text x="14" y="20" textAnchor="middle" fontSize="14" fontWeight="800" fill="#ffffff">
+                    {n.step}
+                  </text>
+                </g>
+              ) : null}
               <text x="58" y={H / 2 - 4} fontSize="16" fontWeight="800" fill="#1e2a24">
                 {title}
               </text>
@@ -108,8 +145,31 @@ export function LoopDiagram() {
             </g>
           );
         })}
+
       </svg>
-      <figcaption className="mt-3 text-center text-sm text-muted">{L.caption}</figcaption>
+      <ul className="mx-auto -mt-2 grid max-w-4xl gap-3 sm:grid-cols-2 sm:gap-4" data-testid="loop-legend">
+        <li className="flex items-start gap-3 rounded-xl border border-border bg-surface p-3 sm:p-4">
+          <svg viewBox="0 0 56 16" className="mt-1.5 w-14 shrink-0" aria-hidden>
+            <path d="M2 8 H40" stroke="#1f6f4a" strokeWidth="3" />
+            <path d="M38 2 L52 8 L38 14 Z" fill="#1f6f4a" />
+          </svg>
+          <div>
+            <p className="font-bold text-primary-strong sm:text-lg">{L.legendWeekly}</p>
+            <p className="text-sm text-foreground sm:text-base">{L.legendWeeklyDetail}</p>
+          </div>
+        </li>
+        <li className="flex items-start gap-3 rounded-xl border border-accent/50 bg-accent-soft p-3 sm:p-4">
+          <svg viewBox="0 0 56 16" className="mt-1.5 w-14 shrink-0" aria-hidden>
+            <path d="M2 8 H38" stroke="#c98a0c" strokeWidth="3" strokeDasharray="6 5" />
+            <path d="M38 2 L52 8 L38 14 Z" fill="#c98a0c" />
+          </svg>
+          <div>
+            <p className="font-bold text-accent-strong sm:text-lg">{L.legendDetour}</p>
+            <p className="text-sm text-foreground sm:text-base">{L.legendDetourDetail}</p>
+          </div>
+        </li>
+      </ul>
+      <figcaption className="mt-4 text-center text-sm text-muted">{L.caption}</figcaption>
     </figure>
   );
 }
