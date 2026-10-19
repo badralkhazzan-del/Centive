@@ -5,7 +5,6 @@ import { ArrowRight, Building2, ChartColumn, LogIn, Shuffle, Store } from "lucid
 import { LogoMark } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { OpenPlatformButton } from "@/components/guest/open-platform";
-import { InstallAppButton } from "@/components/install/install-app";
 import { useT } from "@/i18n";
 import { useLiveMode, useLiveUser } from "@/lib/repo";
 import { roleOf } from "@/lib/repo/remote";
@@ -61,7 +60,6 @@ export function LandingPage() {
               <Button size="lg" variant="outline" asChild>
                 <a href="#roles">{t.landing.chooseRole}</a>
               </Button>
-              <InstallAppButton />
             </div>
             {!live ? <p className="hide-in-poster max-w-xl text-sm text-muted">{t.guest.openHint}</p> : null}
           </div>

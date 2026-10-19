@@ -25,8 +25,6 @@ export const metadata: Metadata = {
   title: { default: en.meta.title, template: "%s · PiringTani" },
   description: en.meta.description,
   applicationName: "PiringTani",
-  // Installed on an iPhone or iPad (Add to Home Screen): full screen, with this name.
-  appleWebApp: { capable: true, title: "PiringTani", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {

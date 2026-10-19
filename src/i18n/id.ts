@@ -170,17 +170,6 @@ export const id: Dict = {
     supporting: "Juga tersedia: Perisai Harga, QR Telusur Batch, Jam Pembayaran, Umpan Balik Piring, Dasbor Dampak Kabupaten, dan Lab Simulasi.",
     viewSource: "Lihat sumber",
   },
-  install: {
-    button: "Pasang aplikasi",
-    title: "Pakai PiringTani sebagai aplikasi",
-    body: "Pasang di komputer atau ponsel ini. Aplikasi terbuka di jendelanya sendiri dengan ikonnya sendiri, dan diperbarui otomatis.",
-    iosTitle: "Tambahkan PiringTani ke Layar Utama",
-    iosSteps: ["Ketuk tombol Bagikan (di Safari ada di bagian bawah layar).", "Pilih “Tambahkan ke Layar Utama”.", "Ketuk Tambah. PiringTani kini terbuka dari ikonnya, layar penuh."],
-    macTitle: "Tambahkan PiringTani ke Dock",
-    macSteps: ["Di bilah menu, pilih File.", "Pilih “Tambahkan ke Dock”.", "PiringTani kini terbuka dari Dock di jendelanya sendiri."],
-    done: "Mengerti",
-    installed: "PiringTani sudah terpasang di perangkat ini.",
-  },
   guest: {
     open: "Buka platform",
     openHint: "Tanpa akun. Anda mendapat salinan sendiri dari wilayah contoh fiktif dan bisa mencoba semua peran.",

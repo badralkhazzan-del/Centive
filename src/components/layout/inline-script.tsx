@@ -1,6 +1,5 @@
 "use client";
 
-import { INSTALL_BOOT } from "@/lib/install";
 
 /** Inline script that runs during HTML parsing (before first paint) on hard loads. */
 export function InlineScript({ html }: { html: string }) {
@@ -13,6 +12,5 @@ export function InlineScript({ html }: { html: string }) {
   );
 }
 
-// Poster mode (?poster=1) and language preference are applied before paint, and the
-// app install event is kept for the Install button.
-export const BOOT_SCRIPT = `(function(){try{${INSTALL_BOOT}var d=document.documentElement;var q=new URLSearchParams(location.search);if(q.get('poster')==='1'){d.setAttribute('data-poster','1')}var l=localStorage.getItem('piringtani-lang');if(l){if(l==='id'){d.lang='id';d.setAttribute('data-hydrating','1');setTimeout(function(){d.removeAttribute('data-hydrating')},2500)}}}catch(e){}})();`;
+// Poster mode (?poster=1) and language preference are applied before paint.
+export const BOOT_SCRIPT = `(function(){try{var d=document.documentElement;var q=new URLSearchParams(location.search);if(q.get('poster')==='1'){d.setAttribute('data-poster','1')}var l=localStorage.getItem('piringtani-lang');if(l){if(l==='id'){d.lang='id';d.setAttribute('data-hydrating','1');setTimeout(function(){d.removeAttribute('data-hydrating')},2500)}}}catch(e){}})();`;
