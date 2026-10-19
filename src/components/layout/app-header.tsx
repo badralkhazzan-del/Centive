@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { Building2, FlaskConical, Info, LayoutGrid, LogIn, LogOut, Menu, RotateCcw, Settings, Users } from "lucide-react";
+import { Building2, Download, FlaskConical, Info, LayoutGrid, LogIn, LogOut, Menu, RotateCcw, Settings, Users } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/common/toast";
+import { useInstallApp } from "@/components/install/install-app";
 import { useT } from "@/i18n";
 import { actions, repo, useAppData, useDerived, useLiveMode, useLiveUser } from "@/lib/repo";
 import { roleOf } from "@/lib/repo/remote";
@@ -34,6 +35,7 @@ export function AppHeader() {
   const router = useRouter();
   const data = useAppData();
   const notify = useToast();
+  const installer = useInstallApp();
   const pathRole = roleFromPath(pathname);
   const role = pathRole ?? data.ui.role;
   const isLive = useLiveMode();
@@ -152,6 +154,11 @@ export function AppHeader() {
               <DropdownMenuItem onSelect={() => router.push("/about")}>
                 <Info aria-hidden /> {t.common.about}
               </DropdownMenuItem>
+              {installer.available ? (
+                <DropdownMenuItem onSelect={installer.install} data-testid="menu-install">
+                  <Download aria-hidden /> {t.install.button}
+                </DropdownMenuItem>
+              ) : null}
               <DropdownMenuSeparator />
               {canManage ? (
                 <DropdownMenuItem onSelect={() => router.push("/manage")} data-testid="menu-manage">
@@ -208,6 +215,7 @@ export function AppHeader() {
           </ul>
         </nav>
       ) : null}
+      {installer.dialog}
     </header>
   );
 }

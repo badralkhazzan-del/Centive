@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Building2, CircleCheck, Clock, Copy, RotateCcw, Smartphone, Sparkles } from "lucide-react";
+import { InstallAppCard } from "@/components/install/install-app";
 import { RoleCards } from "@/components/landing/role-cards";
 import { PageContainer, PageHeader } from "@/components/layout/page";
 import { useToast } from "@/components/common/toast";
@@ -89,6 +90,7 @@ export function ExploreHub() {
         </div>
         <div className="grid content-start gap-6">
           <PhoneCard />
+          <InstallAppCard />
           <Card>
             <CardHeader>
               <CardTitle>{G.resetTitle}</CardTitle>

@@ -91,9 +91,7 @@ function SampleBanner() {
       <div className="hide-in-poster border-b border-warn/40 bg-warn-soft" data-testid="sample-banner">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 text-sm text-warn-strong">
           <Info className="size-4 shrink-0" aria-hidden />
-          <span className="flex-1">
-            {t.guest.badge} · {t.common.fictional}
-          </span>
+          <span className="flex-1">{t.guest.banner}</span>
           {user.role === "admin" ? (
             <Button asChild variant="ghost" size="sm" className="text-warn-strong">
               <Link href="/explore">

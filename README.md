@@ -23,6 +23,7 @@ Developed by **Badr Aleen Al-kazan** for the CENTIVE Competition 2026.
 - [Scripts](#scripts)
 - [Testing](#testing)
 - [Opening the platform without an account](#opening-the-platform-without-an-account)
+- [Installing as an app](#installing-as-an-app)
 - [Workspaces](#workspaces)
 - [Project structure](#project-structure)
 - [Deploying to Vercel](#deploying-to-vercel)
@@ -88,7 +89,7 @@ Locally no setup is needed: without a database URL, an embedded Postgres (PGlite
 | `npm run typecheck` | `tsc --noEmit` (strict mode) |
 | `npm test` | Vitest engine and server suites, run once |
 | `npm run test:watch` | Vitest in watch mode |
-| `npm run test:e2e` | Playwright end-to-end tests (guest copy with a phone, multi-user workspace) |
+| `npm run test:e2e` | Playwright end-to-end tests (guest copy with a phone, multi-user workspace, installing as an app) |
 
 ## Testing
 
@@ -131,6 +132,16 @@ Judges, portfolio visitors and anyone curious can use the whole platform without
 - **Honest labels.** Every screen of a copy carries a "Sample region" banner, and the footer says that all organizations and people in it are fictional.
 
 The code is in `src/server/guest.ts`, `src/app/api/guest/` and `src/components/guest/`.
+
+## Installing as an app
+
+PiringTani is an installable web app (PWA), so the same website runs in a browser tab or as an app with its own icon and window, and every update reaches installed copies at once.
+
+- **Windows, Mac, Linux and Android (Chrome or Edge):** the **Install the app** button (on the landing page, in the header menu and on the sample region home) opens the browser's own install dialog. The browser's address bar also shows an install icon.
+- **iPhone and iPad:** the button shows the steps for Share > Add to Home Screen, since Safari has no install event.
+- **Safari on a Mac:** the button shows the steps for File > Add to Dock.
+
+The pieces are `src/app/manifest.ts` (name, colors, icons, shortcuts to the sample region and each role, and two screenshots for the install dialog), the icons in `public/icons/` and `src/app/apple-icon.png`, the screenshots in `public/screenshots/`, `src/lib/install.ts` and `src/components/install/`. The service worker (`public/sw.js`) keeps pages already opened readable offline. `tests/e2e/install.spec.ts` checks that Chrome reports no installability errors and that the button works in Chrome and on an iPhone.
 
 ## Workspaces
 

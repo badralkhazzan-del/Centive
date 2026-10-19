@@ -170,6 +170,17 @@ export const en = {
     supporting: "Also included: Price Shield, Batch Trace QR, Payment Clock, Plate Feedback, Regency Impact Dashboard and the Simulation Lab.",
     viewSource: "View source",
   },
+  install: {
+    button: "Install the app",
+    title: "Use PiringTani as an app",
+    body: "Install it on this computer or phone. It opens in its own window with its own icon, and updates by itself.",
+    iosTitle: "Add PiringTani to your Home Screen",
+    iosSteps: ["Tap the Share button (in Safari it is at the bottom of the screen).", "Choose “Add to Home Screen”.", "Tap Add. PiringTani now opens from its icon, full screen."],
+    macTitle: "Add PiringTani to the Dock",
+    macSteps: ["In the menu bar, choose File.", "Choose “Add to Dock”.", "PiringTani now opens from the Dock in its own window."],
+    done: "Got it",
+    installed: "PiringTani is installed on this device.",
+  },
   guest: {
     open: "Open the platform",
     openHint: "No account needed. You get your own copy of a fictional sample region and can try every role.",
@@ -179,6 +190,7 @@ export const en = {
     ended: "Your sample copy was closed, so here is the way to open a fresh one.",
     haveAccount: "Have an account?",
     badge: "Sample region",
+    banner: "Sample region: names and figures are fictional.",
     hubTitle: "Your sample region",
     hubSubtitle:
       "A private copy of a fictional region in Banyumas with 3 kitchens, 2 village cooperatives and 18 farmers. Change anything you like: it is yours, and it closes after 7 days without use.",
